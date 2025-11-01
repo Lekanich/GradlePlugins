@@ -1,7 +1,7 @@
 [versions]
 # libraries
 lombok = "1.18.42"
-junit = "6.0.0"
+junit = "6.0.1"
 
 [libraries]
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
