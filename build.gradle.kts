@@ -1,5 +1,8 @@
+fun properties(key: String): Provider<String> = providers.gradleProperty(key)
+
 plugins {
     java
+    alias(libs.plugins.kotlin) // Kotlin support
 }
 
 group = "lekanich"
@@ -24,4 +27,6 @@ tasks {
     test {
         useJUnitPlatform()
     }
+    wrapper { gradleVersion = properties("gradleVersion").get() }
+
 }
