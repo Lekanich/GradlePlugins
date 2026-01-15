@@ -1,6 +1,6 @@
 plugins {
     `kotlin-dsl`
-    `maven-publish`
+    id("com.gradle.plugin-publish") version "2.0.0"
 }
 
 repositories {
@@ -8,13 +8,18 @@ repositories {
     gradlePluginPortal()
 }
 
-group = providers.gradleProperty("groupId").get()
+group = "io.github.lekanich.tool.gradle"
 version = providers.gradleProperty("version").get()
 
 gradlePlugin {
+    website = "https://github.com/Lekanich/GradlePlugins"
+    vcsUrl = "https://github.com/Lekanich/GradlePlugins.git"
     plugins {
-        create("git-tool") {
-            id = "lekanich.git-tool"
+        register("git-tool") {
+            id = "io.github.lekanich.git-tool"
+            displayName = "Lekanich's Gradle plugin for Git operations"
+            description = "A Simple Gradle plugin for Git operations"
+            tags = listOf("lekanich")
             implementationClass = "lekanich.common.gradle.GitToolPlugin"
         }
     }
@@ -31,7 +36,6 @@ afterEvaluate {
         publications {
             named<MavenPublication>("pluginMaven") {
                 pom {
-                    groupId = group.toString()
                     name.set("Gradle :: Plugin :: Git Tool")
                     description.set("A Gradle plugin for Git operations")
                     url.set("https://github.com/Lekanich/GradlePlugins")
