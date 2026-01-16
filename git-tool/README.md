@@ -7,6 +7,8 @@ A Gradle plugin for automating Git operations in your build process.
 - ✅ Check Git working directory status
 - ✅ Create and validate Git tags
 - ✅ Push tags to remote repositories
+- ✅ Delete tags locally and remotely
+- ✅ Get Git information (branch, commit hash, tags, commit count)
 - ✅ Complete release workflows
 - ✅ Configurable via DSL
 - ✅ Proper Gradle integration with logging
@@ -53,6 +55,25 @@ gitTool {
 ```
 
 ## Available Tasks
+
+### `gitInstalled`
+
+Verifies that Git is installed and available on the system.
+
+```bash
+./gradlew gitInstalled
+```
+
+This task checks if Git is properly installed and accessible from PATH by executing `git --version`.
+
+**Fails if:**
+- Git is not installed
+- Git is not available in PATH
+- Git command fails to execute
+
+**Use case:** Validate Git availability before running other Git tasks in CI/CD pipelines.
+
+---
 
 ### `gitCheckStatus`
 
@@ -134,6 +155,133 @@ This is the recommended way to create and push tags as it ensures all validation
 
 ---
 
+### `gitDeleteTag`
+
+Deletes a Git tag locally.
+
+```bash
+./gradlew gitDeleteTag -PtagName=v1.0.0
+```
+
+**Options:**
+- `tagName` (required) - The name of the tag to delete
+
+**Use case:** Remove obsolete or incorrect tags from your local repository.
+
+---
+
+### `gitDeleteRemoteTag`
+
+Deletes a Git tag from a remote repository.
+
+```bash
+./gradlew gitDeleteRemoteTag -PtagName=v1.0.0
+```
+
+**Options:**
+- `tagName` (required) - The name of the tag to delete
+- `remoteName` (optional) - Remote repository name (default: "origin")
+
+**Use case:** Remove tags from remote repository after deleting locally.
+
+**Example - Delete both local and remote:**
+```bash
+./gradlew gitDeleteTag gitDeleteRemoteTag -PtagName=v1.0.0
+```
+
+---
+
+### `gitGetCurrentBranch`
+
+Gets the current Git branch name and writes it to a file.
+
+```bash
+./gradlew gitGetCurrentBranch
+```
+
+**Output:** `build/git/branch.txt`
+
+**Use case:** Include branch name in build artifacts or version strings.
+
+---
+
+### `gitGetCommitHash`
+
+Gets the current Git commit hash and writes it to a file.
+
+```bash
+# Get full commit hash
+./gradlew gitGetCommitHash
+
+# Get short commit hash (7 characters)
+./gradlew gitGetCommitHash -PshortHash=true
+```
+
+**Options:**
+- `shortHash` (optional) - Use short hash format (default: false)
+
+**Output:** `build/git/commit-hash.txt`
+
+**Use case:** Include commit hash in build metadata or version strings.
+
+---
+
+### `gitListTags`
+
+Lists all Git tags matching a pattern and writes them to a file.
+
+```bash
+# List all tags
+./gradlew gitListTags
+
+# List only version tags
+./gradlew gitListTags -Ppattern="v*"
+```
+
+**Options:**
+- `pattern` (optional) - Pattern to filter tags (e.g., "v*")
+
+**Output:** `build/git/tags.txt` (one tag per line)
+
+**Use case:** Version bumping, changelog generation.
+
+---
+
+### `gitGetLastTag`
+
+Gets the most recent Git tag and writes it to a file.
+
+```bash
+./gradlew gitGetLastTag
+```
+
+**Output:** `build/git/last-tag.txt`
+
+**Use case:** Determine the previous version for changelog generation.
+
+---
+
+### `gitCommitCount`
+
+Counts Git commits and writes the count to a file.
+
+```bash
+# Count all commits
+./gradlew gitCommitCount
+
+# Count commits since a specific tag
+./gradlew gitCommitCount -Psince=v1.0.0
+```
+
+**Options:**
+- `since` (optional) - Starting point (tag, commit, or branch)
+
+**Output:** `build/git/commit-count.txt`
+
+**Use case:** Generate build numbers based on commit count.
+
+---
+
 ## Usage Examples
 
 ### Basic Release Workflow
@@ -195,6 +343,47 @@ tasks.register("release") {
         tasks.getByName<GitPushTag>("gitPushTag").apply {
             tagName.set("v$projectVersion")
         }
+    }
+}
+```
+
+### Include Git Info in Build
+
+```kotlin
+// Get current branch and commit hash
+val getBranch = tasks.register("getBranch", GitGetCurrentBranch::class.java) {
+    outputFile.set(layout.buildDirectory.file("git/branch.txt"))
+}
+
+val getCommit = tasks.register("getCommit", GitGetCommitHash::class.java) {
+    shortHash.set(true)
+    outputFile.set(layout.buildDirectory.file("git/commit.txt"))
+}
+
+// Use in version string
+tasks.register("printVersion") {
+    dependsOn(getBranch, getCommit)
+    doLast {
+        val branch = getBranch.get().outputFile.get().asFile.readText()
+        val commit = getCommit.get().outputFile.get().asFile.readText()
+        println("Version: ${project.version}-$branch-$commit")
+    }
+}
+```
+
+### Generate Build Number from Commits
+
+```kotlin
+val commitCount = tasks.register("commitCount", GitCommitCount::class.java) {
+    since.set("v1.0.0")  // Count since last release
+    outputFile.set(layout.buildDirectory.file("git/build-number.txt"))
+}
+
+tasks.register("printBuildNumber") {
+    dependsOn(commitCount)
+    doLast {
+        val buildNumber = commitCount.get().outputFile.get().asFile.readText()
+        println("Build #$buildNumber")
     }
 }
 ```
