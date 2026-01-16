@@ -4,7 +4,9 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.publish.plugins.PublishingPlugin
 import org.gradle.api.tasks.Exec
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.work.DisableCachingByDefault
 import java.io.ByteArrayOutputStream
@@ -31,9 +33,19 @@ abstract class GitGetCurrentBranch : Exec() {
     @get:Internal
     abstract val branchName: Property<String>
 
+    /**
+     * Whether to write the result to a file.
+     * When false, only the branchName property is populated (no file I/O).
+     * Default: true
+     */
+    @get:Input
+    @get:Optional
+    abstract val writeToFile: Property<Boolean>
+
     init {
         description = "Get current Git branch name"
         group = PublishingPlugin.PUBLISH_TASK_GROUP
+        writeToFile.convention(true)
     }
 
     override fun exec() {
@@ -56,9 +68,11 @@ abstract class GitGetCurrentBranch : Exec() {
         // Set the output property for use by other tasks
         branchName.set(branchNameValue)
 
-        // Write to output file
-        val output = outputFile.get().asFile
-        output.parentFile.mkdirs()
-        output.writeText(branchNameValue)
+        // Write to output file only if enabled
+        if (writeToFile.get()) {
+            val output = outputFile.get().asFile
+            output.parentFile.mkdirs()
+            output.writeText(branchNameValue)
+        }
     }
 }

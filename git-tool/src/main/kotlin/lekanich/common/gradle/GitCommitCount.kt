@@ -42,10 +42,20 @@ abstract class GitCommitCount : Exec() {
     @get:Internal
     abstract val commitCount: Property<String>
 
+    /**
+     * Whether to write the result to a file.
+     * When false, only the commitCount property is populated (no file I/O).
+     * Default: true
+     */
+    @get:Input
+    @get:Optional
+    abstract val writeToFile: Property<Boolean>
+
     init {
         description = "Get number of Git commits"
         group = PublishingPlugin.PUBLISH_TASK_GROUP
         since.convention("")
+        writeToFile.convention(true)
     }
 
     override fun exec() {
@@ -78,9 +88,11 @@ abstract class GitCommitCount : Exec() {
         // Set the output property for use by other tasks
         commitCount.set(count)
 
-        // Write to output file
-        val output = outputFile.get().asFile
-        output.parentFile.mkdirs()
-        output.writeText(count)
+        // Write to output file only if enabled
+        if (writeToFile.get()) {
+            val output = outputFile.get().asFile
+            output.parentFile.mkdirs()
+            output.writeText(count)
+        }
     }
 }

@@ -41,10 +41,20 @@ abstract class GitGetCommitHash : Exec() {
     @get:Internal
     abstract val commitHash: Property<String>
 
+    /**
+     * Whether to write the result to a file.
+     * When false, only the commitHash property is populated (no file I/O).
+     * Default: true
+     */
+    @get:Input
+    @get:Optional
+    abstract val writeToFile: Property<Boolean>
+
     init {
         description = "Get current Git commit hash"
         group = PublishingPlugin.PUBLISH_TASK_GROUP
         shortHash.convention(false)
+        writeToFile.convention(true)
     }
 
     override fun exec() {
@@ -70,9 +80,11 @@ abstract class GitGetCommitHash : Exec() {
         // Set the output property for use by other tasks
         commitHash.set(commitHashValue)
 
-        // Write to output file
-        val output = outputFile.get().asFile
-        output.parentFile.mkdirs()
-        output.writeText(commitHashValue)
+        // Write to output file only if enabled
+        if (writeToFile.get()) {
+            val output = outputFile.get().asFile
+            output.parentFile.mkdirs()
+            output.writeText(commitHashValue)
+        }
     }
 }

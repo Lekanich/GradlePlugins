@@ -51,8 +51,11 @@ gitTool {
     defaultTagMessage.set("Release {tag}")         // Default tag message template (default: "Release {tag}")
     validateBeforeTag.set(true)                    // Check tag doesn't exist before creating (default: true)
     requireCleanWorkspace.set(true)                // Require clean workspace for tag operations (default: true)
+    writeToFile.set(true)                          // Write Git info results to files (default: true)
 }
 ```
+
+**Note:** Setting `writeToFile.set(false)` will disable file output for all Git information tasks (`gitGetCurrentBranch`, `gitGetCommitHash`, `gitListTags`, `gitGetLastTag`, `gitCommitCount`). The results will still be available via output properties for better performance when you only need to use the values in build scripts.
 
 ## Available Tasks
 
@@ -396,6 +399,39 @@ tasks.register("printBuildNumber") {
         val buildNumber = commitCount.get().commitCount.get()
         println("Build #$buildNumber")
     }
+}
+```
+
+### Disable File Writing for Better Performance
+
+If you only need the output properties and don't need files, disable file writing globally:
+
+```kotlin
+gitTool {
+    writeToFile.set(false)  // Don't write to files, only populate output properties
+}
+
+val getBranch = tasks.register("getBranch", GitGetCurrentBranch::class.java)
+val getCommit = tasks.register("getCommit", GitGetCommitHash::class.java) {
+    shortHash.set(true)
+}
+
+tasks.register("printVersion") {
+    dependsOn(getBranch, getCommit)
+    doLast {
+        // Access directly - no file I/O at all!
+        val branch = getBranch.get().branchName.get()
+        val commit = getCommit.get().commitHash.get()
+        println("Version: ${project.version}-$branch-$commit")
+    }
+}
+```
+
+Or disable file writing per task:
+
+```kotlin
+val getBranch = tasks.register("getBranch", GitGetCurrentBranch::class.java) {
+    writeToFile.set(false)  // Override the extension setting for this task
 }
 ```
 

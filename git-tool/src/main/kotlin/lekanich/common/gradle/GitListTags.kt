@@ -41,10 +41,20 @@ abstract class GitListTags : Exec() {
     @get:Internal
     abstract val tags: Property<String>
 
+    /**
+     * Whether to write the result to a file.
+     * When false, only the tags property is populated (no file I/O).
+     * Default: true
+     */
+    @get:Input
+    @get:Optional
+    abstract val writeToFile: Property<Boolean>
+
     init {
         description = "List Git tags"
         group = PublishingPlugin.PUBLISH_TASK_GROUP
         pattern.convention("")
+        writeToFile.convention(true)
     }
 
     override fun exec() {
@@ -78,9 +88,11 @@ abstract class GitListTags : Exec() {
         // Set the output property for use by other tasks
         tags.set(tagsValue)
 
-        // Write to output file
-        val output = outputFile.get().asFile
-        output.parentFile.mkdirs()
-        output.writeText(tagsValue)
+        // Write to output file only if enabled
+        if (writeToFile.get()) {
+            val output = outputFile.get().asFile
+            output.parentFile.mkdirs()
+            output.writeText(tagsValue)
+        }
     }
 }

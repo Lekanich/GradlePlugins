@@ -35,21 +35,26 @@ class GitToolPlugin : Plugin<Project> {
             remoteName.set(extension.remoteName)
         }
 
-        // Register Git information retrieval
+        // Register Phase 2 tasks - Git information retrieval
         project.tasks.register("gitGetCurrentBranch", GitGetCurrentBranch::class.java) {
             outputFile.set(project.layout.buildDirectory.file("git/branch.txt"))
+            writeToFile.set(extension.writeToFile)
         }
         project.tasks.register("gitGetCommitHash", GitGetCommitHash::class.java) {
             outputFile.set(project.layout.buildDirectory.file("git/commit-hash.txt"))
+            writeToFile.set(extension.writeToFile)
         }
         project.tasks.register("gitListTags", GitListTags::class.java) {
             outputFile.set(project.layout.buildDirectory.file("git/tags.txt"))
+            writeToFile.set(extension.writeToFile)
         }
         project.tasks.register("gitGetLastTag", GitGetLastTag::class.java) {
             outputFile.set(project.layout.buildDirectory.file("git/last-tag.txt"))
+            writeToFile.set(extension.writeToFile)
         }
         project.tasks.register("gitCommitCount", GitCommitCount::class.java) {
             outputFile.set(project.layout.buildDirectory.file("git/commit-count.txt"))
+            writeToFile.set(extension.writeToFile)
         }
 
         // Register  Delete Tag management

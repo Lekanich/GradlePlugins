@@ -4,7 +4,9 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.publish.plugins.PublishingPlugin
 import org.gradle.api.tasks.Exec
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.work.DisableCachingByDefault
 import java.io.ByteArrayOutputStream
@@ -32,10 +34,20 @@ abstract class GitGetLastTag : Exec() {
     @get:Internal
     abstract val lastTag: Property<String>
 
+    /**
+     * Whether to write the result to a file.
+     * When false, only the lastTag property is populated (no file I/O).
+     * Default: true
+     */
+    @get:Input
+    @get:Optional
+    abstract val writeToFile: Property<Boolean>
+
     init {
         description = "Get most recent Git tag"
         group = PublishingPlugin.PUBLISH_TASK_GROUP
         isIgnoreExitValue = true
+        writeToFile.convention(true)
     }
 
     override fun exec() {
@@ -58,9 +70,11 @@ abstract class GitGetLastTag : Exec() {
         // Set the output property for use by other tasks
         lastTag.set(lastTagValue)
 
-        // Write to output file
-        val output = outputFile.get().asFile
-        output.parentFile.mkdirs()
-        output.writeText(lastTagValue)
+        // Write to output file only if enabled
+        if (writeToFile.get()) {
+            val output = outputFile.get().asFile
+            output.parentFile.mkdirs()
+            output.writeText(lastTagValue)
+        }
     }
 }

@@ -50,11 +50,19 @@ abstract class GitToolExtension {
      */
     abstract val requireCleanWorkspace: Property<Boolean>
 
+    /**
+     * Whether Git info tasks should write their results to files.
+     * When false, only output properties are populated (no file I/O).
+     * Default: true
+     */
+    abstract val writeToFile: Property<Boolean>
+
     init {
         enabled.convention(true)
         remoteName.convention("origin")
         defaultTagMessage.convention("Release {tag}")
         validateBeforeTag.convention(true)
         requireCleanWorkspace.convention(true)
+        writeToFile.convention(true)
     }
 }
