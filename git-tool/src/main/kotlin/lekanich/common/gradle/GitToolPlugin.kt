@@ -3,6 +3,7 @@ package lekanich.common.gradle
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.publish.plugins.PublishingPlugin
+import java.util.function.Consumer
 
 /**
  * Gradle plugin for Git operations automation.
@@ -28,6 +29,9 @@ class GitToolPlugin : Plugin<Project> {
             remoteName.set(extension.remoteName)
         }
         val gitCreateTag = project.tasks.register("gitCreateTag", GitCreateTag::class.java) {
+            usePropertyValueIfExists(project, "tagName") {
+                tagName.convention(it)
+            }
             tagMessage.set(extension.defaultTagMessage)
         }
         val gitPushTag = project.tasks.register("gitPushTag", GitPushTag::class.java) {
@@ -35,26 +39,35 @@ class GitToolPlugin : Plugin<Project> {
         }
 
         // Register composite release workflow task
-        project.tasks.register("gitReleaseTag") {
+        val gitReleaseTag = project.tasks.register("gitReleaseTag") {
             description = "Complete Git release workflow: check, create, and push tag"
             group = PublishingPlugin.PUBLISH_TASK_GROUP
 
-            // Configure task dependencies based on extension settings
-            doFirst {
-                if (extension.requireCleanWorkspace.get()) {
-                    dependsOn(gitCheckStatus)
-                }
-                if (extension.validateBeforeTag.get()) {
-                    dependsOn(gitCheckTag)
-                }
-                dependsOn(gitCreateTag, gitPushTag)
+            // Always depend on create and push tasks
+            if (extension.requireCleanWorkspace.get()) {
+                dependsOn(gitCheckStatus)
             }
+            if (extension.validateBeforeTag.get()) {
+                dependsOn(gitCheckTag)
+            }
+            dependsOn(gitCreateTag, gitPushTag)
+        }
 
-            // Configure task execution order
-            gitCheckStatus.configure { mustRunAfter(gitInstalled) }
-            gitCheckTag.configure { mustRunAfter(gitCheckStatus) }
-            gitCreateTag.configure { mustRunAfter(gitCheckStatus, gitCheckTag) }
-            gitPushTag.configure { mustRunAfter(gitCreateTag) }
+        // Configure task execution order
+        gitCheckStatus.configure { mustRunAfter(gitInstalled) }
+        gitCheckTag.configure { mustRunAfter(gitCheckStatus) }
+        gitCreateTag.configure { mustRunAfter(gitCheckStatus, gitCheckTag) }
+        gitPushTag.configure { mustRunAfter(gitCreateTag) }
+    }
+
+    private fun usePropertyValueIfExists(
+        project: Project,
+        propertyName: String,
+        consumer: Consumer<String>
+    ) {
+        val provider = project.providers.gradleProperty(propertyName)
+        if (provider.isPresent) {
+            consumer.accept(provider.get())
         }
     }
 }
