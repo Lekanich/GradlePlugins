@@ -1,4 +1,4 @@
 rootProject.name = "GradlePlugins"
 
-// settings.gradle.kts
-includeBuild("./git-tool")
+includeBuild("build-logic")
+includeBuild("git-tool")

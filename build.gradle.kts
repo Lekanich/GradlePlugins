@@ -13,10 +13,6 @@ repositories {
 }
 
 dependencies {
-    testImplementation(platform(libs.junit))
-    testImplementation(libs.junit.jupiter)
-    testRuntimeOnly(libs.junit.platform.launcher)
-
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
     testCompileOnly(libs.lombok)
@@ -24,9 +20,5 @@ dependencies {
 }
 
 tasks {
-    test {
-        useJUnitPlatform()
-    }
     wrapper { gradleVersion = properties("gradleVersion").get() }
-
 }

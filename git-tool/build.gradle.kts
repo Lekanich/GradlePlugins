@@ -1,17 +1,12 @@
 plugins {
     `kotlin-dsl`
     alias(libs.plugins.plugin.publish)
+    id("test-common-convention")
 }
 
 repositories {
     mavenCentral()
     gradlePluginPortal()
-}
-
-dependencies {
-    testImplementation(gradleTestKit())
-    testImplementation(libs.bundles.junit.jupiter)
-    testRuntimeOnly(libs.bundles.junit.jupiter.platform)
 }
 
 kotlin {
@@ -31,17 +26,6 @@ gradlePlugin {
             description = "A Simple Gradle plugin for Git operations"
             tags = listOf("lekanich")
             implementationClass = "lekanich.common.gradle.GitToolPlugin"
-        }
-    }
-}
-
-tasks {
-    test {
-        useJUnitPlatform()
-
-        testLogging {
-            events("passed", "skipped", "failed")
-            showStandardStreams = true
         }
     }
 }
