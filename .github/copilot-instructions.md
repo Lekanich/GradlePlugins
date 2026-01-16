@@ -173,6 +173,8 @@ Plugins can be published to:
 - Use `Provider` and `Property` types for all inputs
 - Don't capture `Project` references in task actions
 - Use `@Input`, `@InputFile`, `@OutputFile` annotations properly
+- Don't use `project.exec` use separate call to commandLine and then `super.exec()` inside the Task that implement Exec
+- `git-tool` Tasks should extend Exec.
 
 ### Performance
 
