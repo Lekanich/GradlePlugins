@@ -1,5 +1,7 @@
 package lekanich.common.gradle
 
+import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.io.TempDir
@@ -59,4 +61,16 @@ abstract class BaseGitTest {
 
         return output.trim()
     }
+
+    protected fun buildTask(vararg arguments: String): BuildResult = GradleRunner.create()
+        .withProjectDir(projectDir)
+        .withArguments(*arguments)
+        .withPluginClasspath()
+        .build()
+
+    protected fun buildAndFailTask(vararg arguments: String): BuildResult = GradleRunner.create()
+        .withProjectDir(projectDir)
+        .withArguments(*arguments)
+        .withPluginClasspath()
+        .buildAndFail()
 }

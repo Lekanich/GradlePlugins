@@ -1,6 +1,5 @@
 package lekanich.common.gradle
 
-import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -28,13 +27,7 @@ class GitCheckStatusTest : BaseGitTaskTest() {
 
     @Test
     fun `task succeeds with clean workspace`() {
-
-
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withArguments("gitCheckStatus")
-            .withPluginClasspath()
-            .build()
+        val result = buildTask("gitCheckStatus")
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":gitCheckStatus")?.outcome)
         assertTrue(result.output.contains("Git workspace is clean"))
@@ -45,11 +38,7 @@ class GitCheckStatusTest : BaseGitTaskTest() {
         // Make workspace dirty
         File(projectDir, "dirty.txt").writeText("uncommitted change")
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withArguments("gitCheckStatus")
-            .withPluginClasspath()
-            .buildAndFail()
+        val result = buildAndFailTask("gitCheckStatus")
 
         assertEquals(TaskOutcome.FAILED, result.task(":gitCheckStatus")?.outcome)
         assertTrue(result.output.contains("dirty") || result.output.contains("commit"))
@@ -61,11 +50,7 @@ class GitCheckStatusTest : BaseGitTaskTest() {
         File(projectDir, "staged.txt").writeText("staged content")
         executeGit(projectDir, "add", "staged.txt")
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withArguments("gitCheckStatus")
-            .withPluginClasspath()
-            .buildAndFail()
+        val result = buildAndFailTask("gitCheckStatus")
 
         assertEquals(TaskOutcome.FAILED, result.task(":gitCheckStatus")?.outcome)
     }

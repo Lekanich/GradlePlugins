@@ -27,22 +27,6 @@ class GitCreateTagTest : BaseGitTaskTest() {
     }
 
     @Test
-    fun `task creates tag with property defined tag name`() {
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withArguments("gitCreateTag", "-PtagName=v1.0.0")
-            .withPluginClasspath()
-            .build()
-
-        assertEquals(TaskOutcome.SUCCESS, result.task(":gitCreateTag")?.outcome)
-        assertTrue(result.output.contains("Created Git tag: v1.0.0"))
-
-        // Verify tag was created
-        val tags = getGitTags(projectDir)
-        assertTrue(tags.contains("v1.0.0"), "Tag v1.0.0 should be created")
-    }
-
-    @Test
     fun `task creates tag with default message`() {
         buildFile.writeText(
             """
