@@ -168,6 +168,7 @@ Plugins can be published to:
 ## Best Practices
 
 ### What do and not to do
+- get the current version from gradle.properties file, from the property version in the submodule directory
 - `project.exec` doesn't exist. Don't use it.
 - Don't use `project.exec` use separate call to commandLine and then `super.exec()` inside the Task that implement Exec
 - `git-tool` Tasks should extend Exec.
