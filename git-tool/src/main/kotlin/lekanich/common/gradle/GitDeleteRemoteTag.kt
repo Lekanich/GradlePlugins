@@ -14,7 +14,7 @@ import java.io.ByteArrayOutputStream
  * This task deletes the tag from the remote repository only.
  * Use gitDeleteTag to delete the local tag first.
  *
- * @since 1.2.0
+ * @since 1.1.0
  */
 @DisableCachingByDefault(because = "Git remote tag deletion should not be cached")
 abstract class GitDeleteRemoteTag : Exec() {

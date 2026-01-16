@@ -15,7 +15,7 @@ import java.io.ByteArrayOutputStream
  *
  * Outputs the commit hash to a file for use by other tasks or build logic.
  *
- * @since 1.2.0
+ * @since 1.1.0
  */
 @DisableCachingByDefault(because = "Git commit hash checks should not be cached")
 abstract class GitGetCommitHash : Exec() {

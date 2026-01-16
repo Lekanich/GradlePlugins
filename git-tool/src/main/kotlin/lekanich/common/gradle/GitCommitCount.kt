@@ -16,7 +16,7 @@ import java.io.ByteArrayOutputStream
  * Can count commits since a specific commit, tag, or branch.
  * Useful for generating build numbers.
  *
- * @since 1.2.0
+ * @since 1.1.0
  */
 @DisableCachingByDefault(because = "Git commit counts should not be cached")
 abstract class GitCommitCount : Exec() {
