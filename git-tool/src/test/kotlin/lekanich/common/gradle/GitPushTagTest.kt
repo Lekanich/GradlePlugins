@@ -1,7 +1,8 @@
 package lekanich.common.gradle
 
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.io.File
 
@@ -45,8 +46,25 @@ class GitPushTagTest : BaseGitTaskTest() {
         """.trimIndent()
         )
 
-        val result = buildTask("gitPushTag", "--dry-run")
-        assertNotNull(result.task(":gitPushTag"))
+        // Create and configure upstream remote
+        val remoteDir = setupRemoteRepository("upstream")
+
+        // Create a tag
+        executeGit(projectDir, "tag", "-a", "v1.0.0", "-m", "Test tag")
+
+        // Execute the task - it should push to 'upstream', not 'origin'
+        val result = buildTask("gitPushTag")
+
+        assertEquals(TaskOutcome.SUCCESS, result.task(":gitPushTag")?.outcome)
+        assertTrue(result.output.contains("Pushed tag"))
+        assertTrue(result.output.contains("upstream"), "Should push to upstream remote")
+
+        // Verify tag exists in upstream remote
+        val remoteTags = executeGitAndGetOutput(remoteDir, "tag", "-l")
+        assertTrue(remoteTags.contains("v1.0.0"), "Tag should be pushed to upstream remote")
+
+        // Cleanup
+        remoteDir.deleteRecursively()
     }
 
     @Test
@@ -63,27 +81,8 @@ class GitPushTagTest : BaseGitTaskTest() {
         """.trimIndent()
         )
 
-        // Create a bare remote repository
-        val remoteDir = File(projectDir.parentFile, "remote-${System.currentTimeMillis()}.git")
-        remoteDir.mkdirs()
-        executeGit(remoteDir, "init", "--bare")
-
-        // Add remote
-        executeGit(projectDir, "remote", "add", "origin", remoteDir.absolutePath)
-
-        // Push initial branch
-        try {
-            executeGit(projectDir, "push", "-u", "origin", "master")
-        } catch (e1: Exception) {
-            println(e1)
-            // Try main if master doesn't work
-            try {
-                executeGit(projectDir, "branch", "-M", "main")
-                executeGit(projectDir, "push", "-u", "origin", "main")
-            } catch (e2: Exception) {
-                println(e2)
-            }
-        }
+        // Create and configure origin remote
+        val remoteDir = setupRemoteRepository("origin")
 
         // Create a tag
         executeGit(projectDir, "tag", "-a", "v1.0.0", "-m", "Test tag")
@@ -150,5 +149,29 @@ class GitPushTagTest : BaseGitTaskTest() {
 
         // Cleanup
         remoteDir.deleteRecursively()
+    }
+
+    /**
+     * Sets up a bare remote repository and adds it as a remote.
+     * Also pushes the initial branch to the remote.
+     *
+     * @param remoteName The name of the remote to create (e.g., "origin", "upstream")
+     * @return The remote repository directory
+     */
+    private fun setupRemoteRepository(remoteName: String): File {
+        val remoteDir = File(projectDir.parentFile, "remote-$remoteName-${System.currentTimeMillis()}.git")
+        remoteDir.mkdirs()
+        executeGit(remoteDir, "init", "--bare")
+        executeGit(projectDir, "remote", "add", remoteName, remoteDir.absolutePath)
+
+        // Push initial branch to remote
+        try {
+            executeGit(projectDir, "push", "-u", remoteName, "master")
+        } catch (_: Exception) {
+            executeGit(projectDir, "branch", "-M", "main")
+            executeGit(projectDir, "push", "-u", remoteName, "main")
+        }
+
+        return remoteDir
     }
 }
