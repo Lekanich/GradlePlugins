@@ -77,12 +77,12 @@ class GitToolPlugin : Plugin<Project> {
 
             // Always depend on create and push tasks
             dependsOn(gitCreateTag, gitPushTag)
-
-            // Configure task execution order
-            gitCheckStatus.configure { mustRunAfter(gitInstalled) }
-            gitCheckTag.configure { mustRunAfter(gitCheckStatus) }
-            gitCreateTag.configure { mustRunAfter(gitCheckStatus, gitCheckTag) }
-            gitPushTag.configure { mustRunAfter(gitCreateTag) }
         }
+
+        // Configure task execution order
+        gitCheckStatus.configure { mustRunAfter(gitInstalled) }
+        gitCheckTag.configure { mustRunAfter(gitCheckStatus) }
+        gitCreateTag.configure { mustRunAfter(gitCheckStatus, gitCheckTag) }
+        gitPushTag.configure { mustRunAfter(gitCreateTag) }
     }
 }
