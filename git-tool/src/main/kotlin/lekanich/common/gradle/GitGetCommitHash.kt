@@ -5,6 +5,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.publish.plugins.PublishingPlugin
 import org.gradle.api.tasks.Exec
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.work.DisableCachingByDefault
@@ -33,6 +34,13 @@ abstract class GitGetCommitHash : Exec() {
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
 
+    /**
+     * The commit hash result.
+     * This property is populated after the task executes and can be used by other tasks.
+     */
+    @get:Internal
+    abstract val commitHash: Property<String>
+
     init {
         description = "Get current Git commit hash"
         group = PublishingPlugin.PUBLISH_TASK_GROUP
@@ -55,13 +63,16 @@ abstract class GitGetCommitHash : Exec() {
 
         super.exec()
 
-        val commitHash = outputStream.toString(Charsets.UTF_8.name()).trim()
+        val commitHashValue = outputStream.toString(Charsets.UTF_8.name()).trim()
 
-        logger.lifecycle("✓ Current commit: $commitHash")
+        logger.lifecycle("✓ Current commit: $commitHashValue")
+
+        // Set the output property for use by other tasks
+        commitHash.set(commitHashValue)
 
         // Write to output file
         val output = outputFile.get().asFile
         output.parentFile.mkdirs()
-        output.writeText(commitHash)
+        output.writeText(commitHashValue)
     }
 }

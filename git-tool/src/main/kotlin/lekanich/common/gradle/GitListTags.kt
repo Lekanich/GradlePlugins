@@ -5,6 +5,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.publish.plugins.PublishingPlugin
 import org.gradle.api.tasks.Exec
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.work.DisableCachingByDefault
@@ -33,6 +34,13 @@ abstract class GitListTags : Exec() {
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
 
+    /**
+     * The list of tags.
+     * This property is populated after the task executes and can be used by other tasks.
+     */
+    @get:Internal
+    abstract val tags: Property<String>
+
     init {
         description = "List Git tags"
         group = PublishingPlugin.PUBLISH_TASK_GROUP
@@ -56,20 +64,23 @@ abstract class GitListTags : Exec() {
 
         super.exec()
 
-        val tags = outputStream.toString(Charsets.UTF_8.name()).trim()
-        val tagCount = if (tags.isEmpty()) 0 else tags.lines().size
+        val tagsValue = outputStream.toString(Charsets.UTF_8.name()).trim()
+        val tagCount = if (tagsValue.isEmpty()) 0 else tagsValue.lines().size
 
         logger.lifecycle("✓ Found $tagCount tag(s)")
         if (tagCount > 0 && logger.isInfoEnabled) {
-            tags.lines().take(10).forEach { logger.info("  - $it") }
+            tagsValue.lines().take(10).forEach { logger.info("  - $it") }
             if (tagCount > 10) {
                 logger.info("  ... and ${tagCount - 10} more")
             }
         }
 
+        // Set the output property for use by other tasks
+        tags.set(tagsValue)
+
         // Write to output file
         val output = outputFile.get().asFile
         output.parentFile.mkdirs()
-        output.writeText(tags)
+        output.writeText(tagsValue)
     }
 }

@@ -1,8 +1,10 @@
 package lekanich.common.gradle
 
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.publish.plugins.PublishingPlugin
 import org.gradle.api.tasks.Exec
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.work.DisableCachingByDefault
 import java.io.ByteArrayOutputStream
@@ -23,6 +25,13 @@ abstract class GitGetLastTag : Exec() {
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
 
+    /**
+     * The last tag name.
+     * This property is populated after the task executes and can be used by other tasks.
+     */
+    @get:Internal
+    abstract val lastTag: Property<String>
+
     init {
         description = "Get most recent Git tag"
         group = PublishingPlugin.PUBLISH_TASK_GROUP
@@ -38,17 +47,20 @@ abstract class GitGetLastTag : Exec() {
 
         super.exec()
 
-        val lastTag = outputStream.toString(Charsets.UTF_8.name()).trim()
+        val lastTagValue = outputStream.toString(Charsets.UTF_8.name()).trim()
 
-        if (lastTag.isEmpty()) {
+        if (lastTagValue.isEmpty()) {
             logger.warn("No tags found in repository")
         } else {
-            logger.lifecycle("✓ Most recent tag: $lastTag")
+            logger.lifecycle("✓ Most recent tag: $lastTagValue")
         }
+
+        // Set the output property for use by other tasks
+        lastTag.set(lastTagValue)
 
         // Write to output file
         val output = outputFile.get().asFile
         output.parentFile.mkdirs()
-        output.writeText(lastTag)
+        output.writeText(lastTagValue)
     }
 }

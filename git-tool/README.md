@@ -360,8 +360,18 @@ val getCommit = tasks.register("getCommit", GitGetCommitHash::class.java) {
     outputFile.set(layout.buildDirectory.file("git/commit.txt"))
 }
 
-// Use in version string
+// Use output properties directly (no file reading needed!)
 tasks.register("printVersion") {
+    dependsOn(getBranch, getCommit)
+    doLast {
+        val branch = getBranch.get().branchName.get()
+        val commit = getCommit.get().commitHash.get()
+        println("Version: ${project.version}-$branch-$commit")
+    }
+}
+
+// Or read from file if preferred
+tasks.register("printVersionFromFile") {
     dependsOn(getBranch, getCommit)
     doLast {
         val branch = getBranch.get().outputFile.get().asFile.readText()
@@ -379,10 +389,11 @@ val commitCount = tasks.register("commitCount", GitCommitCount::class.java) {
     outputFile.set(layout.buildDirectory.file("git/build-number.txt"))
 }
 
+// Access the count directly from the task property
 tasks.register("printBuildNumber") {
     dependsOn(commitCount)
     doLast {
-        val buildNumber = commitCount.get().outputFile.get().asFile.readText()
+        val buildNumber = commitCount.get().commitCount.get()
         println("Build #$buildNumber")
     }
 }

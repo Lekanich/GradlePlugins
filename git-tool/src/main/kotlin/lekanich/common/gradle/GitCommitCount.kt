@@ -5,6 +5,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.publish.plugins.PublishingPlugin
 import org.gradle.api.tasks.Exec
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.work.DisableCachingByDefault
@@ -33,6 +34,13 @@ abstract class GitCommitCount : Exec() {
      */
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
+
+    /**
+     * The commit count result.
+     * This property is populated after the task executes and can be used by other tasks.
+     */
+    @get:Internal
+    abstract val commitCount: Property<String>
 
     init {
         description = "Get number of Git commits"
@@ -66,6 +74,9 @@ abstract class GitCommitCount : Exec() {
         } else {
             logger.lifecycle("✓ Total commits: $count")
         }
+
+        // Set the output property for use by other tasks
+        commitCount.set(count)
 
         // Write to output file
         val output = outputFile.get().asFile
