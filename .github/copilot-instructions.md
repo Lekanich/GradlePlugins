@@ -167,14 +167,18 @@ Plugins can be published to:
 
 ## Best Practices
 
+### What do and not to do
+- `project.exec` doesn't exist. Don't use it.
+- Don't use `project.exec` use separate call to commandLine and then `super.exec()` inside the Task that implement Exec
+- `git-tool` Tasks should extend Exec.
+- To check the failure search also for 'FAILURE' word. 
+
 ### Configuration Cache Compatibility
 
 - Avoid using `Project` at task execution time
 - Use `Provider` and `Property` types for all inputs
 - Don't capture `Project` references in task actions
 - Use `@Input`, `@InputFile`, `@OutputFile` annotations properly
-- Don't use `project.exec` use separate call to commandLine and then `super.exec()` inside the Task that implement Exec
-- `git-tool` Tasks should extend Exec.
 
 ### Performance
 
