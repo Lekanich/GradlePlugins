@@ -7,36 +7,47 @@ import org.gradle.work.DisableCachingByDefault
 import java.io.ByteArrayOutputStream
 
 /**
- * @year 2026
+ * Task to verify that Git is installed and available on the system.
+ *
+ * This task checks if Git is properly installed and accessible from the PATH.
+ * It executes `git --version` and validates the command succeeds.
+ *
+ * @since 1.0.0
  */
-@DisableCachingByDefault(because = "No need")
+@DisableCachingByDefault(because = "Git availability check should not be cached")
 abstract class GitInstalled : Exec() {
     init {
-        description = "Check that git is installed"
+        description = "Verify that Git is installed and available"
         group = PublishingPlugin.PUBLISH_TASK_GROUP
     }
 
     override fun exec() {
-        logger.info("Checking Git working directory status...")
+        logger.info("Checking if Git is installed...")
 
         val outputStream = ByteArrayOutputStream()
         standardOutput = outputStream
         isIgnoreExitValue = true
-        commandLine("git", "--version", "--porcelain")
+        commandLine("git", "--version")
 
         try {
             super.exec()
 
-            if (executionResult.get().exitValue != 0) {
-                throw GradleException("Git command failed. Please ensure Git is properly installed and available in PATH.")
+            val exitValue = executionResult.get().exitValue
+            if (exitValue != 0) {
+                throw GradleException(
+                    "Git command failed with exit code $exitValue. " +
+                    "Please ensure Git is properly installed and available in PATH."
+                )
             }
+
+            val gitVersion = outputStream.toString(Charsets.UTF_8.name()).trim()
+            logger.lifecycle("✓ Git is installed: $gitVersion")
         } catch (e: Exception) {
             throw GradleException(
-                "Git is not available on this system. Please install Git from https://git-scm.com/downloads",
+                "Git is not available on this system. " +
+                "Please install Git from https://git-scm.com/downloads and ensure it's in your PATH.",
                 e
             )
         }
-
-        logger.lifecycle("✓ Git is installed")
     }
 }
