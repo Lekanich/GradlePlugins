@@ -386,11 +386,11 @@ abstract class GitToolExtension {
 4. ✅ Task dependencies (gitReleaseTag workflow)
 5. ✅ Basic documentation (README)
 
-### Should Have (v1.2.0)
-1. ✅ Additional Git operations (get branch, commit hash, list tags)
-2. ✅ Better error handling
-3. ✅ Git availability validation
-4. ✅ Dry-run mode
+### Should Have (v1.2.0) - Phase 2 Status
+1. ✅ Additional Git operations (get branch, commit hash, list tags, delete tags, last tag, commit count)
+2. ✅ Task dependencies and workflows (gitReleaseTag)
+3. ⏳ Better error handling (partially complete - basic validation in place)
+4. ⏳ Dry-run mode (not implemented yet)
 
 ### Nice to Have (v2.0.0)
 1. ⭐ Semantic versioning support
