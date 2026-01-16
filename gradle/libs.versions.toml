@@ -1,19 +1,24 @@
 [versions]
 # libraries
 lombok = "1.18.42"
-junit = "6.0.0"
+junit = "6.0.1"
 
 # plugins
 kotlin = "2.2.21"
-plugin-publish = "1.2.1"
+plugin-publish = "2.0.0"
 
 [libraries]
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
-junit = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit = { module = "org.junit:junit-bom", version.ref = "junit" } # todo: how is it used?
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
+
+[bundles]
+junit-jupiter = ["junit-jupiter", "junit-jupiter-params"]
+junit-jupiter-platform = ["junit-jupiter-engine", "junit-platform-launcher"]
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publish" }
-

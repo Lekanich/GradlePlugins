@@ -1,11 +1,21 @@
 plugins {
     `kotlin-dsl`
-    id("com.gradle.plugin-publish") version "2.0.0"
+    alias(libs.plugins.plugin.publish)
 }
 
 repositories {
     mavenCentral()
     gradlePluginPortal()
+}
+
+dependencies {
+    testImplementation(gradleTestKit())
+    testImplementation(libs.bundles.junit.jupiter)
+    testRuntimeOnly(libs.bundles.junit.jupiter.platform)
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 group = "io.github.lekanich.tool.gradle"
@@ -21,6 +31,17 @@ gradlePlugin {
             description = "A Simple Gradle plugin for Git operations"
             tags = listOf("lekanich")
             implementationClass = "lekanich.common.gradle.GitToolPlugin"
+        }
+    }
+}
+
+tasks {
+    test {
+        useJUnitPlatform()
+
+        testLogging {
+            events("passed", "skipped", "failed")
+            showStandardStreams = true
         }
     }
 }
