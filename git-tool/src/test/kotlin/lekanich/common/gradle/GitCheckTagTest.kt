@@ -16,7 +16,7 @@ class GitCheckTagTest : BaseGitTaskTest() {
     @BeforeEach
     override fun setup() {
         super.setup()
-        buildFile = createBasicGradleProject(
+        buildFile = makeBuildKtsAndCommit(
             projectDir, """
             plugins {
                 id("io.github.lekanich.git-tool")

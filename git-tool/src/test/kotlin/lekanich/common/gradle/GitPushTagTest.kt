@@ -13,7 +13,7 @@ class GitPushTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task is registered correctly`() {
-        createBasicGradleProject(
+        makeBuildKtsAndCommit(
             projectDir, """
             plugins {
                 id("io.github.lekanich.git-tool")
@@ -28,7 +28,7 @@ class GitPushTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task uses remote name from extension`() {
-        createBasicGradleProject(
+        makeBuildKtsAndCommit(
             projectDir, """
             plugins {
                 id("io.github.lekanich.git-tool")
@@ -69,7 +69,7 @@ class GitPushTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task pushes tag to configured remote`() {
-        createBasicGradleProject(
+        makeBuildKtsAndCommit(
             projectDir, """
             plugins {
                 id("io.github.lekanich.git-tool")
@@ -102,7 +102,7 @@ class GitPushTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task fails gracefully when remote is not configured`() {
-        createBasicGradleProject(
+        makeBuildKtsAndCommit(
             projectDir, """
             plugins {
                 id("io.github.lekanich.git-tool")
@@ -124,7 +124,7 @@ class GitPushTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task fails when tag does not exist locally`() {
-        createBasicGradleProject(
+        makeBuildKtsAndCommit(
             projectDir, """
             plugins {
                 id("io.github.lekanich.git-tool")
@@ -149,29 +149,5 @@ class GitPushTagTest : BaseGitTaskTest() {
 
         // Cleanup
         remoteDir.deleteRecursively()
-    }
-
-    /**
-     * Sets up a bare remote repository and adds it as a remote.
-     * Also pushes the initial branch to the remote.
-     *
-     * @param remoteName The name of the remote to create (e.g., "origin", "upstream")
-     * @return The remote repository directory
-     */
-    private fun setupRemoteRepository(remoteName: String): File {
-        val remoteDir = File(projectDir.parentFile, "remote-$remoteName-${System.currentTimeMillis()}.git")
-        remoteDir.mkdirs()
-        executeGit(remoteDir, "init", "--bare")
-        executeGit(projectDir, "remote", "add", remoteName, remoteDir.absolutePath)
-
-        // Push initial branch to remote
-        try {
-            executeGit(projectDir, "push", "-u", remoteName, "master")
-        } catch (_: Exception) {
-            executeGit(projectDir, "branch", "-M", "main")
-            executeGit(projectDir, "push", "-u", remoteName, "main")
-        }
-
-        return remoteDir
     }
 }
