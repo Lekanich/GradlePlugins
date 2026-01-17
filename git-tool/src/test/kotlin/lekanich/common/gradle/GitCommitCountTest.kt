@@ -11,11 +11,7 @@ class GitCommitCountTest : BaseGitTaskTest() {
 
     @Test
     fun `task counts all commits`() {
-        makeBuildKts(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-        """.trimIndent())
+        writeBuildKts("")
 
         val result = buildTask("gitCommitCount")
 
@@ -28,11 +24,7 @@ class GitCommitCountTest : BaseGitTaskTest() {
 
     @Test
     fun `task counts commits since a tag`() {
-        makeBuildKts(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKts("""
             tasks.named<lekanich.common.gradle.GitCommitCount>("gitCommitCount") {
                 since.set("v1.0.0")
             }
