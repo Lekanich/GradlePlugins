@@ -174,6 +174,13 @@ Plugins can be published to:
 - Don't use `project.exec` use separate call to commandLine and then `super.exec()` inside the Task that implement Exec
 - `git-tool` Tasks should extend Exec.
 - To check the failure search also for 'FAILURE' word. 
+- use `buildTask` and `buildTaskAndFailTask` instead of `GradleRunner.create()
+  .withProjectDir(projectDir)
+  .withArguments(*arguments)
+  .withPluginClasspath().build()` and `GradleRunner.create()
+  .withProjectDir(projectDir)
+  .withArguments(*arguments)
+  .withPluginClasspath().buildAndFail()` 
 
 ### Configuration Cache Compatibility
 
