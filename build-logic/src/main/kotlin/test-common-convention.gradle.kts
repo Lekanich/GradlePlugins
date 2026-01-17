@@ -32,8 +32,7 @@ tasks {
 
     withType<Test> {
         configure<JacocoTaskExtension> {
-            isIncludeNoLocationClasses = true
-            excludes = listOf("jdk.internal.*")
+            excludes = listOf("jdk.internal.*", "gradle.kotlin.dsl.*")
         }
     }
 

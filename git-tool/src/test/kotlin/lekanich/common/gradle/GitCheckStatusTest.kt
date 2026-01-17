@@ -30,7 +30,8 @@ class GitCheckStatusTest : BaseGitTaskTest() {
         val result = buildTask("gitCheckStatus")
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":gitCheckStatus")?.outcome)
-        assertTrue(result.output.contains("Git workspace is clean"))
+        val output = result.output
+        assertTrue(output.contains("Git workspace is clean"))
     }
 
     @Test
