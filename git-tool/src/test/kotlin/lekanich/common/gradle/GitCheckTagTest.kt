@@ -43,7 +43,7 @@ class GitCheckTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task uses remote name from extension`() {
-        buildFile.writeText(
+        writeBuildKts(
             """
             gitTool {
                 remoteName.set("upstream")
