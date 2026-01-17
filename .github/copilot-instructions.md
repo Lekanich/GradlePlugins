@@ -16,8 +16,8 @@ Gradle plugin for Git operations automation:
 
 ## Project Structure
 
-- Root project: Multi-module Gradle build
-- `git-tool/` - Git automation plugin
+- It uses Gradle composite builds approach.
+- folder `git-tool/` is for Git automation plugin
 - Each plugin is independently publishable
 
 ## Key Technologies
