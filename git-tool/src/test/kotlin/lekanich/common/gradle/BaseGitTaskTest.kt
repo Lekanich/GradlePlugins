@@ -20,6 +20,17 @@ abstract class BaseGitTaskTest : BaseGitTest() {
         createInitialCommit()
     }
 
+    /**
+     * Writes the given content to the test project's `build.gradle.kts` file.
+     * Prepends the required plugin declarations for `git-tool` and test coverage.
+     *
+     * Usage:
+     * - Call this method in test setup to configure the build script.
+     * - The returned `File` object points to the updated `build.gradle.kts`.
+     *
+     * @param content Additional build script content to append after plugin declarations.
+     * @return The `build.gradle.kts` file with the specified content.
+     */
     protected fun writeBuildKts(content: String): File {
         buildFile.writeText(
             """
