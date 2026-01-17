@@ -11,11 +11,7 @@ class GitDeleteTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task deletes local tag`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             tasks.named<lekanich.common.gradle.GitDeleteTag>("gitDeleteTag") {
                 tagName.set("v1.0.0")
             }
@@ -40,11 +36,7 @@ class GitDeleteTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task fails when tag does not exist`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             tasks.named<lekanich.common.gradle.GitDeleteTag>("gitDeleteTag") {
                 tagName.set("non-existent-tag")
             }
@@ -59,11 +51,7 @@ class GitDeleteTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task can delete multiple tags in sequence`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             tasks.register("deleteTag1", lekanich.common.gradle.GitDeleteTag::class.java) {
                 tagName.set("v1.0.0")
             }

@@ -13,13 +13,7 @@ class GitPushTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task is registered correctly`() {
-        makeBuildKtsAndCommit(
-            projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-        """.trimIndent()
-        )
+        writeBuildKtsAndCommit("")
 
         val result = buildTask("tasks", "--group=publishing")
 
@@ -28,12 +22,7 @@ class GitPushTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task uses remote name from extension`() {
-        makeBuildKtsAndCommit(
-            projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             gitTool {
                 remoteName.set("upstream")
             }
@@ -69,12 +58,7 @@ class GitPushTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task pushes tag to configured remote`() {
-        makeBuildKtsAndCommit(
-            projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             tasks.named<lekanich.common.gradle.GitPushTag>("gitPushTag") {
                 tagName.set(project.findProperty("tagName") as String? ?: "v1.0.0")
             }
@@ -102,12 +86,7 @@ class GitPushTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task fails gracefully when remote is not configured`() {
-        makeBuildKtsAndCommit(
-            projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             tasks.named<lekanich.common.gradle.GitPushTag>("gitPushTag") {
                 tagName.set("v1.0.0")
             }
@@ -124,12 +103,7 @@ class GitPushTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task fails when tag does not exist locally`() {
-        makeBuildKtsAndCommit(
-            projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             tasks.named<lekanich.common.gradle.GitPushTag>("gitPushTag") {
                 tagName.set("v1.0.0")
             }

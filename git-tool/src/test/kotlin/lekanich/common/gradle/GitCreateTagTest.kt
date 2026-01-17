@@ -16,23 +16,12 @@ class GitCreateTagTest : BaseGitTaskTest() {
     @BeforeEach
     override fun setup() {
         super.setup()
-        buildFile = makeBuildKtsAndCommit(
-            projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-        """.trimIndent()
-        )
+        writeBuildKtsAndCommit("")
     }
 
     @Test
     fun `task creates tag with default message`() {
-        buildFile.writeText(
-            """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKts("""
             tasks.named<lekanich.common.gradle.GitCreateTag>("gitCreateTag") {
                 tagName.set("v1.0.0")
             }
@@ -55,12 +44,8 @@ class GitCreateTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task creates tag with custom message`() {
-        buildFile.writeText(
+        writeBuildKts(
             """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
             tasks.named<lekanich.common.gradle.GitCreateTag>("gitCreateTag") {
                 tagName.set("v2.0.0")
                 tagMessage.set("Custom release message for {tag}")
@@ -87,12 +72,7 @@ class GitCreateTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task uses extension default message template`() {
-        buildFile.writeText(
-            """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKts("""
             gitTool {
                 defaultTagMessage.set("Version {tag} released")
             }

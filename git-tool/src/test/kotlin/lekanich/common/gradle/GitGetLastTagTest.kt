@@ -11,11 +11,7 @@ class GitGetLastTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task handles repository with no tags`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-        """.trimIndent())
+        writeBuildKtsAndCommit("")
 
         val result = buildTask("gitGetLastTag")
 
@@ -29,11 +25,7 @@ class GitGetLastTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task gets most recent tag`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-        """.trimIndent())
+        writeBuildKtsAndCommit("")
 
         // Create tags in sequence
         executeGit(projectDir, "tag", "-a", "v1.0.0", "-m", "Release 1.0.0")
@@ -56,11 +48,7 @@ class GitGetLastTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task exposes last tag as output property`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             tasks.register("useLastTag") {
                 dependsOn(tasks.named("gitGetLastTag"))
                 doLast {
@@ -81,11 +69,7 @@ class GitGetLastTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task gets latest tag when multiple exist`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-        """.trimIndent())
+        writeBuildKtsAndCommit("")
 
         // Create multiple tags
         executeGit(projectDir, "tag", "-a", "v1.0.0", "-m", "Release 1.0.0")
@@ -104,11 +88,7 @@ class GitGetLastTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task respects writeToFile setting`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             tasks.named<lekanich.common.gradle.GitGetLastTag>("gitGetLastTag") {
                 writeToFile.set(false)
             }

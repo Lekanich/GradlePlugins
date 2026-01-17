@@ -2,6 +2,7 @@
  * Reusable build script for submodules that provides:
  * - JaCoCo test coverage configuration
  * - JUnit 5 test dependencies and configuration
+ * - TestKit JaCoCo plugin for test coverage in Gradle TestKit tests
  */
 
 plugins {
@@ -11,6 +12,7 @@ plugins {
 }
 
 val libs = the<VersionCatalogsExtension>().named("libs")
+apply(plugin = libs.findPlugin("testkit-jacoco").get().get().pluginId)
 
 dependencies {
     testImplementation(gradleTestKit())

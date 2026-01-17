@@ -11,11 +11,7 @@ class GitDeleteRemoteTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task deletes tag from remote`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             tasks.named<lekanich.common.gradle.GitDeleteRemoteTag>("gitDeleteRemoteTag") {
                 tagName.set("v1.0.0")
             }
@@ -47,11 +43,7 @@ class GitDeleteRemoteTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task warns when remote tag does not exist`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             tasks.named<lekanich.common.gradle.GitDeleteRemoteTag>("gitDeleteRemoteTag") {
                 tagName.set("non-existent-tag")
             }
@@ -72,11 +64,7 @@ class GitDeleteRemoteTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task uses custom remote name`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             gitTool {
                 remoteName.set("upstream")
             }
@@ -104,11 +92,7 @@ class GitDeleteRemoteTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task fails when no remote is configured`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             tasks.named<lekanich.common.gradle.GitDeleteRemoteTag>("gitDeleteRemoteTag") {
                 tagName.set("v1.0.0")
             }
@@ -125,11 +109,7 @@ class GitDeleteRemoteTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task can delete from multiple remotes`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             tasks.register("deleteFromOrigin", lekanich.common.gradle.GitDeleteRemoteTag::class.java) {
                 tagName.set("v1.0.0")
                 remoteName.set("origin")

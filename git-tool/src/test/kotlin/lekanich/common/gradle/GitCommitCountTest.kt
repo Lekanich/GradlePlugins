@@ -61,11 +61,7 @@ class GitCommitCountTest : BaseGitTaskTest() {
 
     @Test
     fun `task counts commits since a commit hash`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-        """.trimIndent())
+        writeBuildKtsAndCommit("")
 
         // Get the hash of the current (second) commit
         val firstCommit = executeGitAndGetOutput(projectDir, "rev-parse", "HEAD~1")
@@ -76,11 +72,7 @@ class GitCommitCountTest : BaseGitTaskTest() {
         executeGit(projectDir, "commit", "-m", "Third commit")
 
         // Configure task to count since first commit
-        makeBuildKts(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKts("""
             tasks.named<lekanich.common.gradle.GitCommitCount>("gitCommitCount") {
                 since.set("${firstCommit.trim()}")
             }
@@ -96,11 +88,7 @@ class GitCommitCountTest : BaseGitTaskTest() {
 
     @Test
     fun `task exposes commit count as output property`() {
-        makeBuildKts(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKts("""
             tasks.register("useCount") {
                 dependsOn(tasks.named("gitCommitCount"))
                 doLast {
@@ -119,11 +107,7 @@ class GitCommitCountTest : BaseGitTaskTest() {
 
     @Test
     fun `task respects writeToFile setting`() {
-        makeBuildKts(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKts("""
             gitTool {
                 writeToFile.set(false)
             }
@@ -137,11 +121,7 @@ class GitCommitCountTest : BaseGitTaskTest() {
 
     @Test
     fun `task returns zero commits when since is HEAD`() {
-        makeBuildKts(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKts("""
             tasks.named<lekanich.common.gradle.GitCommitCount>("gitCommitCount") {
                 since.set("HEAD")
             }

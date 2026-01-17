@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.io.File
 
 /**
  * Tests for the GitCheckTag task using Gradle TestKit.
@@ -15,12 +14,7 @@ class GitCheckTagTest : BaseGitTaskTest() {
     @BeforeEach
     override fun setup() {
         super.setup()
-        buildFile = makeBuildKtsAndCommit(
-            projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             tasks.named<lekanich.common.gradle.GitCheckTag>("gitCheckTag") {
                 tagName.set(project.findProperty("tagName") as String? ?: "v1.0.0")
             }
@@ -51,10 +45,6 @@ class GitCheckTagTest : BaseGitTaskTest() {
     fun `task uses remote name from extension`() {
         buildFile.writeText(
             """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
             gitTool {
                 remoteName.set("upstream")
             }

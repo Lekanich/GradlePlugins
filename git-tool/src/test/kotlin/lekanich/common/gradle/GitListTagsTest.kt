@@ -11,11 +11,7 @@ class GitListTagsTest : BaseGitTaskTest() {
 
     @Test
     fun `task lists all tags when no tags exist`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-        """.trimIndent())
+        writeBuildKtsAndCommit("")
 
         val result = buildTask("gitListTags")
 
@@ -29,11 +25,7 @@ class GitListTagsTest : BaseGitTaskTest() {
 
     @Test
     fun `task lists all tags`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-        """.trimIndent())
+        writeBuildKtsAndCommit("")
 
         // Create some tags
         executeGit(projectDir, "tag", "-a", "v1.0.0", "-m", "Release 1.0.0")
@@ -55,11 +47,7 @@ class GitListTagsTest : BaseGitTaskTest() {
 
     @Test
     fun `task filters tags by pattern`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             tasks.named<lekanich.common.gradle.GitListTags>("gitListTags") {
                 pattern.set("v1.*")
             }
@@ -85,11 +73,7 @@ class GitListTagsTest : BaseGitTaskTest() {
 
     @Test
     fun `task exposes tags as output property`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             tasks.register("useTags") {
                 dependsOn(tasks.named("gitListTags"))
                 doLast {
@@ -111,11 +95,7 @@ class GitListTagsTest : BaseGitTaskTest() {
 
     @Test
     fun `task respects writeToFile setting`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             gitTool {
                 writeToFile.set(false)
             }

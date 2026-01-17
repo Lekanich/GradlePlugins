@@ -8,7 +8,7 @@ import java.io.File
  */
 abstract class BaseGitTaskTest : BaseGitTest() {
     protected lateinit var settingsFile: File
-    protected lateinit var buildFile: File
+    private lateinit var buildFile: File
 
     @BeforeEach
     override fun setup() {
@@ -17,29 +17,37 @@ abstract class BaseGitTaskTest : BaseGitTest() {
         settingsFile = File(projectDir, "settings.gradle")
         buildFile = File(projectDir, "build.gradle")
 
-        createInitialCommit(projectDir)
+        createInitialCommit()
     }
 
-    private fun createInitialCommit(dir: File) {
-        // Ignore .gradle directory
-        File(dir, ".gitignore").writeText(".gradle/\n")
-
-        executeGit(dir, "add", ".gitignore")
-        executeGit(dir, "commit", "-m", "Initial commit")
-    }
-
-    protected fun makeBuildKtsAndCommit(dir: File, buildKtsContent: String): File {
-        val buildFile = makeBuildKts(dir, buildKtsContent)
-
-        executeGit(dir, "add", "build.gradle.kts")
-        executeGit(dir, "commit", "-m", "Gradle project")
-
+    protected fun writeBuildKts(content: String): File {
+        buildFile.writeText(
+            """
+            plugins {
+                id("io.github.lekanich.git-tool")
+                id("jacoco-testkit-coverage") // this will dump coverage data
+            }
+            
+            $content
+        """.trimIndent()
+        )
         return buildFile
     }
 
-    protected fun makeBuildKts(dir: File, buildKtsContent: String): File {
-        val buildFile = File(dir, "build.gradle.kts")
-        buildFile.writeText(buildKtsContent)
+    private fun createInitialCommit() {
+        // Ignore .gradle directory
+        File(projectDir, ".gitignore").writeText(".gradle/\n")
+
+        executeGit(projectDir, "add", ".gitignore")
+        executeGit(projectDir, "commit", "-m", "Initial commit")
+    }
+
+    protected fun writeBuildKtsAndCommit(buildKtsContent: String): File {
+        val buildFile = writeBuildKts(buildKtsContent)
+
+        executeGit(projectDir, "add", "build.gradle.kts")
+        executeGit(projectDir, "commit", "-m", "Gradle project")
+
         return buildFile
     }
 

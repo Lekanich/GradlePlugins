@@ -11,11 +11,7 @@ class GitGetCurrentBranchTest : BaseGitTaskTest() {
 
     @Test
     fun `task gets current branch name`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-        """.trimIndent())
+        writeBuildKtsAndCommit("")
 
         val result = buildTask("gitGetCurrentBranch")
 
@@ -25,11 +21,7 @@ class GitGetCurrentBranchTest : BaseGitTaskTest() {
 
     @Test
     fun `task writes branch name to file`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-        """.trimIndent())
+        writeBuildKtsAndCommit("")
 
         buildTask("gitGetCurrentBranch")
 
@@ -43,11 +35,7 @@ class GitGetCurrentBranchTest : BaseGitTaskTest() {
 
     @Test
     fun `task exposes branch name as output property`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             tasks.register("useBranch") {
                 dependsOn(tasks.named("gitGetCurrentBranch"))
                 doLast {
@@ -66,11 +54,7 @@ class GitGetCurrentBranchTest : BaseGitTaskTest() {
 
     @Test
     fun `task respects writeToFile setting`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             gitTool {
                 writeToFile.set(false)
             }
@@ -84,11 +68,7 @@ class GitGetCurrentBranchTest : BaseGitTaskTest() {
 
     @Test
     fun `task handles detached HEAD gracefully`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-        """.trimIndent())
+        writeBuildKtsAndCommit("")
 
         // Create a detached HEAD state
         val firstCommit = executeGitAndGetOutput(projectDir, "rev-parse", "HEAD")

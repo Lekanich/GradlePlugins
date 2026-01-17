@@ -15,13 +15,7 @@ class GitCheckStatusTest : BaseGitTaskTest() {
     @BeforeEach
     override fun setup() {
         super.setup()
-        buildFile = makeBuildKtsAndCommit(
-            projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-        """.trimIndent()
-        )
+        writeBuildKtsAndCommit("")
     }
 
     @Test

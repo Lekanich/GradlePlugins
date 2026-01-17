@@ -11,11 +11,7 @@ class GitGetCommitHashTest : BaseGitTaskTest() {
 
     @Test
     fun `task gets full commit hash`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-        """.trimIndent())
+        writeBuildKtsAndCommit("")
 
         val result = buildTask("gitGetCommitHash")
 
@@ -29,15 +25,7 @@ class GitGetCommitHashTest : BaseGitTaskTest() {
 
     @Test
     fun `task gets short commit hash`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
-            tasks.named<lekanich.common.gradle.GitGetCommitHash>("gitGetCommitHash") {
-                shortHash.set(true)
-            }
-        """.trimIndent())
+        writeBuildKtsAndCommit("")
 
         val result = buildTask("gitGetCommitHash")
 
@@ -50,11 +38,7 @@ class GitGetCommitHashTest : BaseGitTaskTest() {
 
     @Test
     fun `task exposes commit hash as output property`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             tasks.register("useHash") {
                 dependsOn(tasks.named("gitGetCommitHash"))
                 doLast {
@@ -73,11 +57,7 @@ class GitGetCommitHashTest : BaseGitTaskTest() {
 
     @Test
     fun `task respects writeToFile setting`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             tasks.named<lekanich.common.gradle.GitGetCommitHash>("gitGetCommitHash") {
                 writeToFile.set(false)
             }
@@ -91,11 +71,7 @@ class GitGetCommitHashTest : BaseGitTaskTest() {
 
     @Test
     fun `short and full hashes match`() {
-        makeBuildKtsAndCommit(projectDir, """
-            plugins {
-                id("io.github.lekanich.git-tool")
-            }
-            
+        writeBuildKtsAndCommit("""
             tasks.register("gitGetCommitHashShort", lekanich.common.gradle.GitGetCommitHash::class.java) {
                 shortHash.set(true)
                 outputFile.set(layout.buildDirectory.file("git/commit-hash-short.txt"))
