@@ -125,6 +125,15 @@ Or add `println()` statements and run with `--info` or `--debug` flags:
 - Add unit tests for utility classes
 - Add or update tests for code changes
 - Test data location: `src/test/resources/`
+- use `buildTask` and `buildTaskAndFailTask` instead of `GradleRunner.create()
+  .withProjectDir(projectDir)
+  .withArguments(*arguments)
+  .withPluginClasspath().build()` and `GradleRunner.create()
+  .withProjectDir(projectDir)
+  .withArguments(*arguments)
+  .withPluginClasspath().buildAndFail()`
+- Test cases that test tasks extends `BaseGitTaskTest`
+- to write into test `build.gradle.kts` file use method `writeBuildKts`
 
 ### Running Tests
 
@@ -174,13 +183,6 @@ Plugins can be published to:
 - Don't use `project.exec` use separate call to commandLine and then `super.exec()` inside the Task that implement Exec
 - `git-tool` Tasks should extend Exec.
 - To check the failure search also for 'FAILURE' word. 
-- use `buildTask` and `buildTaskAndFailTask` instead of `GradleRunner.create()
-  .withProjectDir(projectDir)
-  .withArguments(*arguments)
-  .withPluginClasspath().build()` and `GradleRunner.create()
-  .withProjectDir(projectDir)
-  .withArguments(*arguments)
-  .withPluginClasspath().buildAndFail()` 
 
 ### Configuration Cache Compatibility
 
