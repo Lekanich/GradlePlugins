@@ -7,10 +7,15 @@ import java.io.File
  * @year 2026
  */
 abstract class BaseGitTaskTest : BaseGitTest() {
+    protected lateinit var settingsFile: File
+    protected lateinit var buildFile: File
 
     @BeforeEach
     override fun setup() {
         super.setup()
+
+        settingsFile = File(projectDir, "settings.gradle")
+        buildFile = File(projectDir, "build.gradle")
 
         createInitialCommit(projectDir)
     }

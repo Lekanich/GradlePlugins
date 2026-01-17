@@ -11,7 +11,6 @@ import java.io.File
  * Tests for the GitCheckTag task using Gradle TestKit.
  */
 class GitCheckTagTest : BaseGitTaskTest() {
-    private lateinit var buildFile: File
 
     @BeforeEach
     override fun setup() {

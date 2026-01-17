@@ -11,7 +11,6 @@ import java.io.File
  * Tests for the GitCheckStatus task using Gradle TestKit.
  */
 class GitCheckStatusTest : BaseGitTaskTest() {
-    private lateinit var buildFile: File
 
     @BeforeEach
     override fun setup() {

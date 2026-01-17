@@ -71,7 +71,7 @@ abstract class BaseGitTest {
             .withProjectDir(projectDir)
             .withArguments(*arguments)
             .withPluginClasspath()
-            .withDebug(true)
+            .withDebug(false)
 
         return runner
     }

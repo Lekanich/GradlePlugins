@@ -12,7 +12,6 @@ import java.io.File
  * Tests for the GitCreateTag task using Gradle TestKit.
  */
 class GitCreateTagTest : BaseGitTaskTest() {
-    private lateinit var buildFile: File
 
     @BeforeEach
     override fun setup() {
