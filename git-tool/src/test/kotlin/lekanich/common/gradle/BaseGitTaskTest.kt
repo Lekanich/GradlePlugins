@@ -14,8 +14,8 @@ abstract class BaseGitTaskTest : BaseGitTest() {
     override fun setup() {
         super.setup()
 
-        settingsFile = File(projectDir, "settings.gradle")
-        buildFile = File(projectDir, "build.gradle")
+        settingsFile = File(projectDir, "settings.gradle.kts")
+        buildFile = File(projectDir, "build.gradle.kts")
 
         createInitialCommit()
     }
