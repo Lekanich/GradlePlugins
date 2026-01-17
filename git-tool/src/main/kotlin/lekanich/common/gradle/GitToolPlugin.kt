@@ -64,9 +64,9 @@ class GitToolPlugin : Plugin<Project> {
         }
 
         // Register composite release workflow task
-        project.tasks.register("gitReleaseTag") {
-            description = "Complete Git release workflow: check, create, and push tag"
-            group = PublishingPlugin.PUBLISH_TASK_GROUP
+        project.tasks.register("gitReleaseTag", GitReleaseTag::class.java) {
+            requireCleanWorkspace.set(extension.requireCleanWorkspace)
+            validateBeforeTag.set(extension.validateBeforeTag)
 
             if (extension.requireCleanWorkspace.get()) {
                 dependsOn(gitCheckStatus)
