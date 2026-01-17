@@ -2,7 +2,7 @@ rootProject.name = "git-tool"
 
 dependencyResolutionManagement {
     versionCatalogs {
-        create("libs") {
+        register("libs") {
             from(files("../gradle/libs.versions.toml"))
         }
     }
@@ -11,5 +11,6 @@ dependencyResolutionManagement {
 pluginManagement {
     repositories {
         gradlePluginPortal()
+        mavenCentral()
     }
 }

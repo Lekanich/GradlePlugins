@@ -9,10 +9,10 @@ plugins {
     jacoco
     java
     `java-library`
+    id("io.github.gmazzo.gradle.testkit.jacoco")
 }
 
 val libs = the<VersionCatalogsExtension>().named("libs")
-apply(plugin = libs.findPlugin("testkit-jacoco").get().get().pluginId)
 
 dependencies {
     testImplementation(gradleTestKit())
