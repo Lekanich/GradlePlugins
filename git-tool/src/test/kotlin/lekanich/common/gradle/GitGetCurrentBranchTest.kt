@@ -39,7 +39,7 @@ class GitGetCurrentBranchTest : BaseGitTaskTest() {
             tasks.register("useBranch") {
                 dependsOn(tasks.named("gitGetCurrentBranch"))
                 doLast {
-                    val branchTask = tasks.named<lekanich.common.gradle.GitGetCurrentBranch>("gitGetCurrentBranch").get()
+                    val branchTask = tasks.named("gitGetCurrentBranch").get()
                     val branch = branchTask.branchName.get()
                     println("Branch from property: " + branch)
                 }

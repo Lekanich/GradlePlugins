@@ -26,7 +26,7 @@ class GitGetCommitHashTest : BaseGitTaskTest() {
     @Test
     fun `task gets short commit hash`() {
         writeBuildKtsAndCommit("""
-            tasks.named<lekanich.common.gradle.GitGetCommitHash>("gitGetCommitHash") {
+            tasks.named("gitGetCommitHash") {
                 shortHash.set(true)
             }
         """.trimIndent())
@@ -46,7 +46,7 @@ class GitGetCommitHashTest : BaseGitTaskTest() {
             tasks.register("useHash") {
                 dependsOn(tasks.named("gitGetCommitHash"))
                 doLast {
-                    val hashTask = tasks.named<lekanich.common.gradle.GitGetCommitHash>("gitGetCommitHash").get()
+                    val hashTask = tasks.named("gitGetCommitHash").get()
                     val hash = hashTask.commitHash.get()
                     println("Hash from property: " + hash)
                 }
@@ -62,7 +62,7 @@ class GitGetCommitHashTest : BaseGitTaskTest() {
     @Test
     fun `task respects writeToFile setting`() {
         writeBuildKtsAndCommit("""
-            tasks.named<lekanich.common.gradle.GitGetCommitHash>("gitGetCommitHash") {
+            tasks.named("gitGetCommitHash") {
                 writeToFile.set(false)
             }
         """.trimIndent())

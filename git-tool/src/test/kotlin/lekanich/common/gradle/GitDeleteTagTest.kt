@@ -12,7 +12,7 @@ class GitDeleteTagTest : BaseGitTaskTest() {
     @Test
     fun `task deletes local tag`() {
         writeBuildKtsAndCommit("""
-            tasks.named<lekanich.common.gradle.GitDeleteTag>("gitDeleteTag") {
+            tasks.named("gitDeleteTag") {
                 tagName.set("v1.0.0")
             }
         """.trimIndent())
@@ -37,7 +37,7 @@ class GitDeleteTagTest : BaseGitTaskTest() {
     @Test
     fun `task fails when tag does not exist`() {
         writeBuildKtsAndCommit("""
-            tasks.named<lekanich.common.gradle.GitDeleteTag>("gitDeleteTag") {
+            tasks.named("gitDeleteTag") {
                 tagName.set("non-existent-tag")
             }
         """.trimIndent())

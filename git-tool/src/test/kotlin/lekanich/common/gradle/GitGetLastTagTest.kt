@@ -52,7 +52,7 @@ class GitGetLastTagTest : BaseGitTaskTest() {
             tasks.register("useLastTag") {
                 dependsOn(tasks.named("gitGetLastTag"))
                 doLast {
-                    val tagTask = tasks.named<lekanich.common.gradle.GitGetLastTag>("gitGetLastTag").get()
+                    val tagTask = tasks.named("gitGetLastTag").get()
                     val tag = tagTask.lastTag.get()
                     println("Last tag from property: " + tag)
                 }
@@ -89,7 +89,7 @@ class GitGetLastTagTest : BaseGitTaskTest() {
     @Test
     fun `task respects writeToFile setting`() {
         writeBuildKtsAndCommit("""
-            tasks.named<lekanich.common.gradle.GitGetLastTag>("gitGetLastTag") {
+            tasks.named("gitGetLastTag") {
                 writeToFile.set(false)
             }
         """.trimIndent())

@@ -25,7 +25,7 @@ class GitCommitCountTest : BaseGitTaskTest() {
     @Test
     fun `task counts commits since a tag`() {
         writeBuildKts("""
-            tasks.named<lekanich.common.gradle.GitCommitCount>("gitCommitCount") {
+            tasks.named("gitCommitCount") {
                 since.set("v1.0.0")
             }
         """.trimIndent())
@@ -65,7 +65,7 @@ class GitCommitCountTest : BaseGitTaskTest() {
 
         // Configure task to count since first commit
         writeBuildKts("""
-            tasks.named<lekanich.common.gradle.GitCommitCount>("gitCommitCount") {
+            tasks.named("gitCommitCount") {
                 since.set("${firstCommit.trim()}")
             }
         """.trimIndent())
@@ -84,7 +84,7 @@ class GitCommitCountTest : BaseGitTaskTest() {
             tasks.register("useCount") {
                 dependsOn(tasks.named("gitCommitCount"))
                 doLast {
-                    val countTask = tasks.named<lekanich.common.gradle.GitCommitCount>("gitCommitCount").get()
+                    val countTask = tasks.named("gitCommitCount").get()
                     val count = countTask.commitCount.get()
                     println("Count from property: " + count)
                 }
@@ -114,7 +114,7 @@ class GitCommitCountTest : BaseGitTaskTest() {
     @Test
     fun `task returns zero commits when since is HEAD`() {
         writeBuildKts("""
-            tasks.named<lekanich.common.gradle.GitCommitCount>("gitCommitCount") {
+            tasks.named("gitCommitCount") {
                 since.set("HEAD")
             }
         """.trimIndent())
