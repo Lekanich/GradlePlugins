@@ -25,7 +25,11 @@ class GitGetCommitHashTest : BaseGitTaskTest() {
 
     @Test
     fun `task gets short commit hash`() {
-        writeBuildKtsAndCommit("")
+        writeBuildKtsAndCommit("""
+            tasks.named<lekanich.common.gradle.GitGetCommitHash>("gitGetCommitHash") {
+                shortHash.set(true)
+            }
+        """.trimIndent())
 
         val result = buildTask("gitGetCommitHash")
 
