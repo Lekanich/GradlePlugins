@@ -18,6 +18,7 @@ abstract class GitCheckStatus : Exec() {
 	init {
 		description = "Check git working directory status"
 		group = PublishingPlugin.PUBLISH_TASK_GROUP
+		mustRunAfter("gitInstalled")
 	}
 
 	override fun exec() {

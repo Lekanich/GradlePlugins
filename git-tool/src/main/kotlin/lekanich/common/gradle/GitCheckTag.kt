@@ -37,6 +37,7 @@ abstract class GitCheckTag : Exec() {
 		group = PublishingPlugin.PUBLISH_TASK_GROUP
 		isIgnoreExitValue = true
 		remoteName.convention("origin")
+		mustRunAfter("gitCheckStatus")
 	}
 
 	override fun exec() {

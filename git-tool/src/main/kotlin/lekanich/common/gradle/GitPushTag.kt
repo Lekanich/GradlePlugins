@@ -34,6 +34,7 @@ abstract class GitPushTag : Exec() {
 		description = "Push git tag to remote"
 		group = PublishingPlugin.PUBLISH_TASK_GROUP
 		remoteName.convention("origin")
+		mustRunAfter("gitCreateTag")
 	}
 
 	override fun exec() {

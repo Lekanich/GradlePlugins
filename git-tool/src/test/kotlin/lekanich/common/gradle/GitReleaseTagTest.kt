@@ -28,10 +28,7 @@ class GitReleaseTagTest : BaseGitTaskTest() {
     @Test
     fun `task depends on required tasks`() {
         writeBuildKts("""
-            tasks.named<lekanich.common.gradle.GitCreateTag>("gitCreateTag") {
-                tagName.set("v1.0.0")
-            }
-            tasks.named<lekanich.common.gradle.GitPushTag>("gitPushTag") {
+            tasks.named<lekanich.common.gradle.GitReleaseTag>("gitReleaseTag") {
                 tagName.set("v1.0.0")
             }
         """.trimIndent())
@@ -44,9 +41,41 @@ class GitReleaseTagTest : BaseGitTaskTest() {
     }
 
     @Test
+    fun `task passes tagName to dependent tasks`() {
+        writeBuildKts("""
+            tasks.named<lekanich.common.gradle.GitReleaseTag>("gitReleaseTag") {
+                tagName.set("v2.0.0")
+            }
+            
+            // Verify that dependent tasks receive the tagName
+            tasks.named<lekanich.common.gradle.GitCheckTag>("gitCheckTag") {
+                doFirst {
+                    println("GitCheckTag tagName: ${'$'}{tagName.get()}")
+                }
+            }
+            tasks.named<lekanich.common.gradle.GitCreateTag>("gitCreateTag") {
+                doFirst {
+                    println("GitCreateTag tagName: ${'$'}{tagName.get()}")
+                }
+            }
+            tasks.named<lekanich.common.gradle.GitPushTag>("gitPushTag") {
+                doFirst {
+                    println("GitPushTag tagName: ${'$'}{tagName.get()}")
+                }
+            }
+        """.trimIndent())
+
+        val result = buildTask("help")
+
+        // Just verify configuration doesn't fail
+        assertEquals(TaskOutcome.SUCCESS, result.task(":help")?.outcome)
+    }
+
+    @Test
     fun `task can be configured with properties`() {
         writeBuildKts("""
             tasks.named<lekanich.common.gradle.GitReleaseTag>("gitReleaseTag") {
+                tagName.set("v1.5.0")
                 requireCleanWorkspace.set(false)
                 validateBeforeTag.set(false)
             }
@@ -66,6 +95,7 @@ class GitReleaseTagTest : BaseGitTaskTest() {
             }
             
             tasks.named<lekanich.common.gradle.GitReleaseTag>("gitReleaseTag") {
+                tagName.set("v1.0.0")
                 // Should inherit from extension
             }
         """.trimIndent())

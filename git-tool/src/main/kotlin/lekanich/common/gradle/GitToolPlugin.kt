@@ -2,7 +2,6 @@ package lekanich.common.gradle
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.publish.plugins.PublishingPlugin
 
 /**
  * Gradle plugin for Git operations automation.
@@ -23,15 +22,15 @@ class GitToolPlugin : Plugin<Project> {
         val extension = project.extensions.create("gitTool", GitToolExtension::class.java)
 
         // Register core tasks
-        val gitInstalled = project.tasks.register("gitInstalled", GitInstalled::class.java)
-        val gitCheckStatus = project.tasks.register("gitCheckStatus", GitCheckStatus::class.java)
-        val gitCheckTag = project.tasks.register("gitCheckTag", GitCheckTag::class.java) {
+        project.tasks.register("gitInstalled", GitInstalled::class.java)
+        project.tasks.register("gitCheckStatus", GitCheckStatus::class.java)
+        project.tasks.register("gitCheckTag", GitCheckTag::class.java) {
             remoteName.set(extension.remoteName)
         }
-        val gitCreateTag = project.tasks.register("gitCreateTag", GitCreateTag::class.java) {
+        project.tasks.register("gitCreateTag", GitCreateTag::class.java) {
             tagMessage.set(extension.defaultTagMessage)
         }
-        val gitPushTag = project.tasks.register("gitPushTag", GitPushTag::class.java) {
+        project.tasks.register("gitPushTag", GitPushTag::class.java) {
             remoteName.set(extension.remoteName)
         }
 
@@ -67,22 +66,6 @@ class GitToolPlugin : Plugin<Project> {
         project.tasks.register("gitReleaseTag", GitReleaseTag::class.java) {
             requireCleanWorkspace.set(extension.requireCleanWorkspace)
             validateBeforeTag.set(extension.validateBeforeTag)
-
-            if (extension.requireCleanWorkspace.get()) {
-                dependsOn(gitCheckStatus)
-            }
-            if (extension.validateBeforeTag.get()) {
-                dependsOn(gitCheckTag)
-            }
-
-            // Always depend on create and push tasks
-            dependsOn(gitCreateTag, gitPushTag)
         }
-
-        // Configure task execution order
-        gitCheckStatus.configure { mustRunAfter(gitInstalled) }
-        gitCheckTag.configure { mustRunAfter(gitCheckStatus) }
-        gitCreateTag.configure { mustRunAfter(gitCheckStatus, gitCheckTag) }
-        gitPushTag.configure { mustRunAfter(gitCreateTag) }
     }
 }

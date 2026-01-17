@@ -35,6 +35,7 @@ abstract class GitCreateTag : Exec() {
 		description = "Create git tag"
 		group = PublishingPlugin.PUBLISH_TASK_GROUP
 		tagMessage.convention("Release {tag}")
+		mustRunAfter("gitCheckStatus", "gitCheckTag")
 	}
 
 	override fun exec() {
