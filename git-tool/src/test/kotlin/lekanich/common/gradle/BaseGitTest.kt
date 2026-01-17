@@ -62,15 +62,17 @@ abstract class BaseGitTest {
         return output.trim()
     }
 
-    protected fun buildTask(vararg arguments: String): BuildResult = GradleRunner.create()
-        .withProjectDir(projectDir)
-        .withArguments(*arguments)
-        .withPluginClasspath()
-        .build()
+    protected fun buildTask(vararg arguments: String): BuildResult = createRunner(*arguments).build()
 
-    protected fun buildAndFailTask(vararg arguments: String): BuildResult = GradleRunner.create()
-        .withProjectDir(projectDir)
-        .withArguments(*arguments)
-        .withPluginClasspath()
-        .buildAndFail()
+    protected fun buildAndFailTask(vararg arguments: String): BuildResult = createRunner(*arguments).buildAndFail()
+
+    private fun createRunner(vararg arguments: String): GradleRunner {
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir)
+            .withArguments(*arguments)
+            .withPluginClasspath()
+            .withDebug(true)
+
+        return runner
+    }
 }
