@@ -19,6 +19,7 @@ Gradle plugin for Git operations automation:
 - It uses Gradle composite builds approach.
 - folder `git-tool/` is for Git automation plugin
 - Each plugin is independently publishable
+- Common toml file is here `gradle\libs.versions.toml` try to use only it
 
 ## Key Technologies
 
