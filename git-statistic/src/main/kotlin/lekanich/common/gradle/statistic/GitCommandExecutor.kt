@@ -34,7 +34,7 @@ open class GitCommandExecutor(
             throw GradleException("Git command failed: git ${args.joinToString(" ")}")
         }
 
-        return output.trim()
+        return output
     }
 
     /**
