@@ -63,7 +63,7 @@ class GitDataCollector(private val executor: GitCommandExecutor) {
      * Collect working directory status information.
      */
     fun collectWorkingDirectoryInfo(includeFileChanges: Boolean = true): WorkingDirectoryInfo {
-        val statusOutput = executor.execute("status", "--porcelain")
+        val statusOutput = executor.execute("status", "--porcelain", trimResult = false)
 
         if (!includeFileChanges) {
             return WorkingDirectoryInfo(

@@ -16,7 +16,7 @@ open class GitCommandExecutor(
      * Execute a Git command and return its output.
      * Throws GradleException if the command fails.
      */
-    open fun execute(vararg args: String): String {
+    open fun execute(vararg args: String, trimResult: Boolean = true): String {
         val processBuilder = ProcessBuilder("git", *args)
             .directory(workingDirectory)
             .redirectErrorStream(false)
@@ -34,7 +34,11 @@ open class GitCommandExecutor(
             throw GradleException("Git command failed: git ${args.joinToString(" ")}")
         }
 
-        return output
+        return if (trimResult) {
+            output.trim()
+        } else {
+            output
+        }
     }
 
     /**
