@@ -7,7 +7,6 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import java.io.ByteArrayOutputStream
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -150,7 +149,7 @@ abstract class GitStatusReportTask : DefaultTask() {
         val reachable = try {
             executeGit("ls-remote", "--exit-code", remoteName)
             true
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
 
@@ -415,25 +414,30 @@ abstract class GitStatusReportTask : DefaultTask() {
     }
 
     private fun executeGit(vararg args: String): String {
-        val output = ByteArrayOutputStream()
-        val result = project.exec { spec ->
-            spec.commandLine("git", *args)
-            spec.standardOutput = output
-            spec.errorOutput = ByteArrayOutputStream() // Suppress errors
-            spec.isIgnoreExitValue = true
-        }
+        val processBuilder = ProcessBuilder("git", *args)
+            .directory(project.projectDir)
+            .redirectErrorStream(false)
 
-        if (result.exitValue != 0) {
+        val process = processBuilder.start()
+        val output = process.inputStream.bufferedReader().readText()
+        val errorOutput = process.errorStream.bufferedReader().readText()
+        val exitCode = process.waitFor()
+
+        if (exitCode != 0) {
+            logger.error("Git command failed: git ${args.joinToString(" ")}")
+            if (errorOutput.isNotEmpty()) {
+                logger.error("Error output: $errorOutput")
+            }
             throw GradleException("Git command failed: git ${args.joinToString(" ")}")
         }
 
-        return output.toString(Charsets.UTF_8).trim()
+        return output.trim()
     }
 
     private fun executeGitOrNull(vararg args: String): String? {
         return try {
             executeGit(*args).takeIf { it.isNotBlank() }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
