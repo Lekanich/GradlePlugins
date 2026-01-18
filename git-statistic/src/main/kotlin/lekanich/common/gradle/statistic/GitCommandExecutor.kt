@@ -8,7 +8,7 @@ import java.io.File
  * Utility class for executing Git commands.
  * Provides consistent error handling and logging for Git operations.
  */
-class GitCommandExecutor(
+open class GitCommandExecutor(
     private val workingDirectory: File,
     private val logger: Logger
 ) {
@@ -16,7 +16,7 @@ class GitCommandExecutor(
      * Execute a Git command and return its output.
      * Throws GradleException if the command fails.
      */
-    fun execute(vararg args: String): String {
+    open fun execute(vararg args: String): String {
         val processBuilder = ProcessBuilder("git", *args)
             .directory(workingDirectory)
             .redirectErrorStream(false)
@@ -41,7 +41,7 @@ class GitCommandExecutor(
      * Execute a Git command and return its output, or null if the command fails.
      * Does not throw exceptions on failure.
      */
-    fun executeOrNull(vararg args: String): String? {
+    open fun executeOrNull(vararg args: String): String? {
         return try {
             execute(*args).takeIf { it.isNotBlank() }
         } catch (_: Exception) {

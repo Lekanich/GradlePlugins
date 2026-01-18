@@ -137,7 +137,7 @@ class GitDataCollector(private val executor: GitCommandExecutor) {
     fun collectCommitHistory(depth: Int): List<CommitHistoryEntry> {
         val output = executor.execute("log", "-$depth", "--pretty=format:%H|%h|%an|%ae|%cI|%s")
         return output.lines().filter { it.isNotBlank() }.map { line ->
-            val parts = line.split("|")
+            val parts = line.split("|", limit = 6)
             CommitHistoryEntry(
                 hash = parts[0],
                 shortHash = parts[1],
