@@ -22,8 +22,10 @@ class GitCreateTagTest : BaseGitTaskTest() {
     @Test
     fun `task creates tag with default message`() {
         writeBuildKts("""
-            tasks.named("gitCreateTag") {
-                tagName.set("v1.0.0")
+            tasks {
+                gitCreateTag {
+                    tagName.set("v1.0.0")
+                }
             }
         """.trimIndent()
         )
@@ -46,9 +48,11 @@ class GitCreateTagTest : BaseGitTaskTest() {
     fun `task creates tag with custom message`() {
         writeBuildKts(
             """
-            tasks.named("gitCreateTag") {
-                tagName.set("v2.0.0")
-                tagMessage.set("Custom release message for {tag}")
+            tasks {
+                gitCreateTag {
+                    tagName.set("v2.0.0")
+                    tagMessage.set("Custom release message for {tag}")
+                }
             }
         """.trimIndent()
         )
@@ -77,8 +81,10 @@ class GitCreateTagTest : BaseGitTaskTest() {
                 defaultTagMessage.set("Version {tag} released")
             }
             
-            tasks.named("gitCreateTag") {
-                tagName.set("v3.0.0")
+            tasks {
+                gitCreateTag {
+                    tagName.set("v3.0.0")
+                }
             }
         """.trimIndent()
         )

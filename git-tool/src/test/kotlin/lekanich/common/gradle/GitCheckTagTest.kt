@@ -15,8 +15,10 @@ class GitCheckTagTest : BaseGitTaskTest() {
     override fun setup() {
         super.setup()
         writeBuildKtsAndCommit("""
-            tasks.named("gitCheckTag") {
-                tagName.set(project.findProperty("tagName") as String? ?: "v1.0.0")
+            tasks {
+                gitCheckTag {
+                    tagName.set(project.findProperty("tagName") as String? ?: "v1.0.0")
+                }
             }
         """.trimIndent()
         )
@@ -49,8 +51,10 @@ class GitCheckTagTest : BaseGitTaskTest() {
                 remoteName.set("upstream")
             }
             
-            tasks.named("gitCheckTag") {
-                tagName.set("v1.0.0")
+            tasks {
+                gitCheckTag {
+                    tagName.set("v1.0.0")
+                }
             }
         """.trimIndent()
         )

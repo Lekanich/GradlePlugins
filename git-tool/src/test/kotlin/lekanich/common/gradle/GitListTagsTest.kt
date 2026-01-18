@@ -48,8 +48,10 @@ class GitListTagsTest : BaseGitTaskTest() {
     @Test
     fun `task filters tags by pattern`() {
         writeBuildKtsAndCommit("""
-            tasks.named("gitListTags") {
-                pattern.set("v1.*")
+            tasks {
+                gitListTags {
+                    pattern.set("v1.*")
+                }
             }
         """.trimIndent())
 
@@ -74,12 +76,14 @@ class GitListTagsTest : BaseGitTaskTest() {
     @Test
     fun `task exposes tags as output property`() {
         writeBuildKtsAndCommit("""
-            tasks.register("useTags") {
-                dependsOn(tasks.named("gitListTags"))
-                doLast {
-                    val tagsTask = tasks.named("gitListTags").get()
-                    val tagsList = tagsTask.tags.get()
-                    println("Tags from property: " + tagsList)
+            tasks {
+                register("useTags") {
+                    dependsOn(gitListTags)
+                    doLast {
+                        val tagsTask = gitListTags.get()
+                        val tagsList = tagsTask.tags.get()
+                        println("Tags from property: " + tagsList)
+                    }
                 }
             }
         """.trimIndent())

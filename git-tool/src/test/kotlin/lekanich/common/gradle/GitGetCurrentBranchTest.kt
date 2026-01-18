@@ -36,12 +36,14 @@ class GitGetCurrentBranchTest : BaseGitTaskTest() {
     @Test
     fun `task exposes branch name as output property`() {
         writeBuildKtsAndCommit("""
-            tasks.register("useBranch") {
-                dependsOn(tasks.named("gitGetCurrentBranch"))
-                doLast {
-                    val branchTask = tasks.named("gitGetCurrentBranch").get()
-                    val branch = branchTask.branchName.get()
-                    println("Branch from property: " + branch)
+            tasks {
+                register("useBranch") {
+                    dependsOn(gitGetCurrentBranch)
+                    doLast {
+                        val branchTask = gitGetCurrentBranch.get()
+                        val branch = branchTask.branchName.get()
+                        println("Branch from property: " + branch)
+                    }
                 }
             }
         """.trimIndent())

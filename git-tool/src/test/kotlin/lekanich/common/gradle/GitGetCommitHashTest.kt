@@ -26,8 +26,10 @@ class GitGetCommitHashTest : BaseGitTaskTest() {
     @Test
     fun `task gets short commit hash`() {
         writeBuildKtsAndCommit("""
-            tasks.named("gitGetCommitHash") {
-                shortHash.set(true)
+            tasks {
+                gitGetCommitHash {
+                    shortHash.set(true)
+                }
             }
         """.trimIndent())
 
@@ -43,13 +45,15 @@ class GitGetCommitHashTest : BaseGitTaskTest() {
     @Test
     fun `task exposes commit hash as output property`() {
         writeBuildKtsAndCommit("""
-            tasks.register("useHash") {
-                dependsOn(tasks.named("gitGetCommitHash"))
-                doLast {
-                    val hashTask = tasks.named("gitGetCommitHash").get()
-                    val hash = hashTask.commitHash.get()
-                    println("Hash from property: " + hash)
-                }
+            tasks {
+                register("useHash") {
+                    dependsOn(gitGetCommitHash)
+                    doLast {
+                        val hashTask = gitGetCommitHash.get()
+                        val hash = hashTask.commitHash.get()
+                        println("Hash from property: " + hash)
+                    }
+                }    
             }
         """.trimIndent())
 
@@ -62,8 +66,10 @@ class GitGetCommitHashTest : BaseGitTaskTest() {
     @Test
     fun `task respects writeToFile setting`() {
         writeBuildKtsAndCommit("""
-            tasks.named("gitGetCommitHash") {
-                writeToFile.set(false)
+            tasks {
+                gitGetCommitHash {
+                    writeToFile.set(false)
+                }
             }
         """.trimIndent())
 

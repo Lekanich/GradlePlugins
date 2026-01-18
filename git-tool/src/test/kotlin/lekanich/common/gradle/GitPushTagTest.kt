@@ -59,8 +59,10 @@ class GitPushTagTest : BaseGitTaskTest() {
     @Test
     fun `task pushes tag to configured remote`() {
         writeBuildKtsAndCommit("""
-            tasks.named("gitPushTag") {
-                tagName.set(project.findProperty("tagName") as String? ?: "v1.0.0")
+            tasks {
+                gitPushTag {
+                    tagName.set(project.findProperty("tagName") as String? ?: "v1.0.0")
+                }
             }
         """.trimIndent()
         )
@@ -87,8 +89,10 @@ class GitPushTagTest : BaseGitTaskTest() {
     @Test
     fun `task fails gracefully when remote is not configured`() {
         writeBuildKtsAndCommit("""
-            tasks.named("gitPushTag") {
-                tagName.set("v1.0.0")
+            tasks {
+                gitPushTag {
+                    tagName.set("v1.0.0")
+                }
             }
         """.trimIndent()
         )
@@ -104,8 +108,10 @@ class GitPushTagTest : BaseGitTaskTest() {
     @Test
     fun `task fails when tag does not exist locally`() {
         writeBuildKtsAndCommit("""
-            tasks.named("gitPushTag") {
-                tagName.set("v1.0.0")
+            tasks {
+                gitPushTag {
+                    tagName.set("v1.0.0")
+                }
             }
         """.trimIndent()
         )

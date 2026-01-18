@@ -25,8 +25,10 @@ class GitCommitCountTest : BaseGitTaskTest() {
     @Test
     fun `task counts commits since a tag`() {
         writeBuildKts("""
-            tasks.named("gitCommitCount") {
-                since.set("v1.0.0")
+            tasks {
+                gitCommitCount {
+                    since.set("v1.0.0")
+                }
             }
         """.trimIndent())
 
@@ -65,8 +67,10 @@ class GitCommitCountTest : BaseGitTaskTest() {
 
         // Configure task to count since first commit
         writeBuildKts("""
-            tasks.named("gitCommitCount") {
-                since.set("${firstCommit.trim()}")
+            tasks {
+                gitCommitCount {
+                    since.set("${firstCommit.trim()}")
+                }
             }
         """.trimIndent())
 
@@ -81,12 +85,14 @@ class GitCommitCountTest : BaseGitTaskTest() {
     @Test
     fun `task exposes commit count as output property`() {
         writeBuildKts("""
-            tasks.register("useCount") {
-                dependsOn(tasks.named("gitCommitCount"))
-                doLast {
-                    val countTask = tasks.named("gitCommitCount").get()
-                    val count = countTask.commitCount.get()
-                    println("Count from property: " + count)
+            tasks {
+                register("useCount") {
+                    dependsOn(gitCommitCount)
+                    doLast {
+                        val countTask = gitCommitCount.get()
+                        val count = countTask.commitCount.get()
+                        println("Count from property: " + count)
+                    }
                 }
             }
         """.trimIndent())
@@ -114,8 +120,10 @@ class GitCommitCountTest : BaseGitTaskTest() {
     @Test
     fun `task returns zero commits when since is HEAD`() {
         writeBuildKts("""
-            tasks.named("gitCommitCount") {
-                since.set("HEAD")
+            tasks {
+                gitCommitCount {
+                    since.set("HEAD")
+                }
             }
         """.trimIndent())
 

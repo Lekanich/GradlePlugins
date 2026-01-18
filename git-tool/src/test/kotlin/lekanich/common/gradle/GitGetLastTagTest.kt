@@ -49,12 +49,14 @@ class GitGetLastTagTest : BaseGitTaskTest() {
     @Test
     fun `task exposes last tag as output property`() {
         writeBuildKtsAndCommit("""
-            tasks.register("useLastTag") {
-                dependsOn(tasks.named("gitGetLastTag"))
-                doLast {
-                    val tagTask = tasks.named("gitGetLastTag").get()
-                    val tag = tagTask.lastTag.get()
-                    println("Last tag from property: " + tag)
+            tasks {
+                register("useLastTag") {
+                    dependsOn(gitGetLastTag)
+                    doLast {
+                        val tagTask = gitGetLastTag.get()
+                        val tag = tagTask.lastTag.get()
+                        println("Last tag from property: " + tag)
+                    }
                 }
             }
         """.trimIndent())
@@ -89,8 +91,10 @@ class GitGetLastTagTest : BaseGitTaskTest() {
     @Test
     fun `task respects writeToFile setting`() {
         writeBuildKtsAndCommit("""
-            tasks.named("gitGetLastTag") {
-                writeToFile.set(false)
+            tasks {
+                gitGetLastTag {
+                    writeToFile.set(false)
+                }
             }
         """.trimIndent())
 

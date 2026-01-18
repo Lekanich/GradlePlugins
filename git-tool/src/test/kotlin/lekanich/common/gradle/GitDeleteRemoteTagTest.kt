@@ -12,8 +12,10 @@ class GitDeleteRemoteTagTest : BaseGitTaskTest() {
     @Test
     fun `task deletes tag from remote`() {
         writeBuildKtsAndCommit("""
-            tasks.named("gitDeleteRemoteTag") {
-                tagName.set("v1.0.0")
+            tasks {
+                gitDeleteRemoteTag {
+                    tagName.set("v1.0.0")
+                }
             }
         """.trimIndent())
 
@@ -44,8 +46,10 @@ class GitDeleteRemoteTagTest : BaseGitTaskTest() {
     @Test
     fun `task warns when remote tag does not exist`() {
         writeBuildKtsAndCommit("""
-            tasks.named("gitDeleteRemoteTag") {
-                tagName.set("non-existent-tag")
+            tasks {
+                gitDeleteRemoteTag {
+                    tagName.set("non-existent-tag")
+                }
             }
         """.trimIndent())
 
@@ -69,8 +73,10 @@ class GitDeleteRemoteTagTest : BaseGitTaskTest() {
                 remoteName.set("upstream")
             }
             
-            tasks.named("gitDeleteRemoteTag") {
-                tagName.set("v1.0.0")
+            tasks {
+                gitDeleteRemoteTag {
+                    tagName.set("v1.0.0")
+                }
             }
         """.trimIndent())
 
@@ -93,8 +99,10 @@ class GitDeleteRemoteTagTest : BaseGitTaskTest() {
     @Test
     fun `task fails when no remote is configured`() {
         writeBuildKtsAndCommit("""
-            tasks.named("gitDeleteRemoteTag") {
-                tagName.set("v1.0.0")
+            tasks {
+                gitDeleteRemoteTag {
+                    tagName.set("v1.0.0")
+                }
             }
         """.trimIndent())
 

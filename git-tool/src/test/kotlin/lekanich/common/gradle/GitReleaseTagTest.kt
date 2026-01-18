@@ -27,11 +27,15 @@ class GitReleaseTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task depends on required tasks`() {
-        writeBuildKts("""
-            tasks.named("gitReleaseTag") {
-                tagName.set("v1.0.0")
+        writeBuildKts(
+            """
+            tasks{ 
+                gitReleaseTag {
+                    tagName.set("v1.0.0")
+                }
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // Note: We can't actually test the full workflow without a remote repository
         // but we can verify the task exists and has the correct configuration
@@ -44,27 +48,32 @@ class GitReleaseTagTest : BaseGitTaskTest() {
     fun `task passes tagName to dependent tasks`() {
         writeBuildKts(
             $$"""
-            tasks.named("gitReleaseTag") {
-                tagName.set("v2.0.0")
+            tasks{ 
+                gitReleaseTag {
+                    tagName.set("v2.0.0")
+                }
             }
             
             // Verify that dependent tasks receive the tagName
-            tasks.named("gitCheckTag") {
-                doFirst {
-                    println("GitCheckTag tagName: ${tagName.get()}")
+            tasks {
+                gitCheckTag {
+                    doFirst {
+                        println("GitCheckTag tagName: ${tagName.get()}")
+                    }
+                }
+                gitCreateTag {
+                    doFirst {
+                        println("GitCreateTag tagName: ${tagName.get()}")
+                    }
+                }
+                gitPushTag {
+                    doFirst {
+                        println("GitPushTag tagName: ${tagName.get()}")
+                    }
                 }
             }
-            tasks.named("gitCreateTag") {
-                doFirst {
-                    println("GitCreateTag tagName: ${tagName.get()}")
-                }
-            }
-            tasks.named("gitPushTag") {
-                doFirst {
-                    println("GitPushTag tagName: ${tagName.get()}")
-                }
-            }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         val result = buildTask("help")
 
@@ -74,13 +83,17 @@ class GitReleaseTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task can be configured with properties`() {
-        writeBuildKts("""
-            tasks.named("gitReleaseTag") {
-                tagName.set("v1.5.0")
-                requireCleanWorkspace.set(false)
-                validateBeforeTag.set(false)
+        writeBuildKts(
+            """
+            tasks{
+                gitReleaseTag {
+                    tagName.set("v1.5.0")
+                    requireCleanWorkspace.set(false)
+                    validateBeforeTag.set(false)
+                }
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         val result = buildTask("tasks", "--all")
 
@@ -89,17 +102,21 @@ class GitReleaseTagTest : BaseGitTaskTest() {
 
     @Test
     fun `task uses extension default values`() {
-        writeBuildKts("""
+        writeBuildKts(
+            """
             gitTool {
                 requireCleanWorkspace.set(false)
                 validateBeforeTag.set(false)
             }
             
-            tasks.named("gitReleaseTag") {
-                tagName.set("v1.0.0")
-                // Should inherit from extension
+            tasks {
+                gitReleaseTag {
+                    tagName.set("v1.0.0")
+                    // Should inherit from extension
+                }
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         val result = buildTask("tasks", "--all")
 

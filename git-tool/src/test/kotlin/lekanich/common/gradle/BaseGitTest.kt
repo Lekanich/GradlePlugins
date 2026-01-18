@@ -66,13 +66,10 @@ abstract class BaseGitTest {
 
     protected fun buildAndFailTask(vararg arguments: String): BuildResult = createRunner(*arguments).buildAndFail()
 
-    private fun createRunner(vararg arguments: String): GradleRunner {
-        val runner = GradleRunner.create()
+    private fun createRunner(vararg arguments: String): GradleRunner =
+        GradleRunner.create()
             .withProjectDir(projectDir)
             .withArguments(*arguments)
             .withPluginClasspath()
             .withDebug(false)
-
-        return runner
-    }
 }
