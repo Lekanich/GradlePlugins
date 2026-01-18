@@ -231,19 +231,6 @@ project.tasks.register("gitReleaseTag") {
    - Merge conflicts
    - Detached HEAD state
 
-3. **Add dry-run mode**:
-   ```kotlin
-   @get:Input
-   abstract val dryRun: Property<Boolean>
-   
-   override fun exec() {
-       if (dryRun.get()) {
-           logger.lifecycle("DRY RUN: Would execute: ${commandLine.joinToString(" ")}")
-           return
-       }
-       super.exec()
-   }
-   ```
 
 **Benefit**: Better developer experience, easier troubleshooting
 
@@ -424,7 +411,6 @@ abstract class GitToolExtension {
    - ✅ All new tasks documented in README
    - ✅ Usage examples for output properties
    - ✅ Configuration examples
-7. ⏳ Dry-run mode (deferred to Phase 3)
 
 ### Nice to Have (v2.0.0) - Phase 3
 1. ⭐ Semantic versioning support
@@ -551,7 +537,6 @@ After improvements, the plugin should:
 - Semantic versioning support
 - Changelog generation
 - Git hooks integration
-- Dry-run mode (deferred from Phase 2)
 
 **Estimated Effort**: ~5-7 days when needed
 
