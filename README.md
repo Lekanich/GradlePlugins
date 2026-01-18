@@ -24,6 +24,32 @@ plugins {
 
 **Version:** 1.1.0
 
+---
+
+### 📊 Git Statistic Plugin
+
+[![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/io.github.lekanich.git-statistic?label=Gradle%20Plugin%20Portal)](https://plugins.gradle.org/plugin/io.github.lekanich.git-statistic)
+
+**Main Purpose:** Generate comprehensive Git statistics, status reports, and interactive dashboards for your repository.
+
+**Installation:**
+```kotlin
+plugins {
+    id("io.github.lekanich.git-statistic") version "1.0.0"
+}
+```
+
+**Key Features:**
+- 📄 Generate status reports in JSON, HTML, or Markdown format
+- 📈 Interactive HTML dashboards with visualizations
+- 👥 Contributor statistics and commit analysis
+- 🔥 File change heatmaps
+- 🔗 CI/CD integration ready
+
+**Documentation:** See [git-statistic/README.md](git-statistic/README.md) for detailed usage instructions.
+
+**Version:** 1.0.0
+
 ## Project Structure
 
 - Each plugin is located in its own subdirectory (e.g., `git-tool/`)
