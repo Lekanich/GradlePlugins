@@ -237,7 +237,11 @@ class GitDataCollectorTest {
 
         @Test
         fun `should detect conflict files`() {
-            mockExecutor.addResponse("status", "--porcelain", response = "UU conflict1.txt\nDD conflict2.kt\nAA conflict3.java")
+            mockExecutor.addResponse(
+                "status",
+                "--porcelain",
+                response = "UU conflict1.txt\nDD conflict2.kt\nAA conflict3.java"
+            )
 
             val info = collector.collectWorkingDirectoryInfo()
 
@@ -471,7 +475,8 @@ class GitDataCollectorTest {
 
         @Test
         fun `should handle commit messages with special characters`() {
-            val gitLogOutput = "abc123|abc123|John Doe|john@example.com|2024-01-15T10:00:00Z|Fix: issue #123 - Handle | pipe character"
+            val gitLogOutput =
+                "abc123|abc123|John Doe|john@example.com|2024-01-15T10:00:00Z|Fix: issue #123 - Handle | pipe character"
 
             mockExecutor.addResponse("log", "-1", "--pretty=format:%H|%h|%an|%ae|%cI|%s", response = gitLogOutput)
 
@@ -662,7 +667,8 @@ class GitDataCollectorTest {
     /**
      * Mock implementation of GitCommandExecutor for testing.
      */
-    private class MockGitCommandExecutor : GitCommandExecutor(File("."), Logging.getLogger(MockGitCommandExecutor::class.java)) {
+    private class MockGitCommandExecutor :
+        GitCommandExecutor(File("."), Logging.getLogger(MockGitCommandExecutor::class.java)) {
         private val responses = mutableMapOf<String, String?>()
         private val exceptions = mutableSetOf<String>()
 
@@ -674,7 +680,7 @@ class GitDataCollectorTest {
             exceptions.add(args.joinToString(" "))
         }
 
-        override fun execute(vararg args: String): String {
+        override fun execute(vararg args: String, trimResult: Boolean): String {
             val key = args.joinToString(" ")
             if (exceptions.contains(key)) {
                 throw Exception("Mock exception for: $key")
