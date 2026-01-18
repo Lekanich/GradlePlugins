@@ -1,10 +1,14 @@
 package lekanich.common.gradle.statistic
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 
 /**
@@ -16,6 +20,10 @@ import org.gradle.api.tasks.TaskAction
  * - Markdown: Documentation-friendly format
  */
 abstract class GitStatusReportTask : DefaultTask() {
+
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val projectDirectory: DirectoryProperty
 
     @get:Input
     abstract val format: Property<ReportFormat>
@@ -39,7 +47,7 @@ abstract class GitStatusReportTask : DefaultTask() {
     fun generateReport() {
         logger.lifecycle("Generating Git status report in ${format.get()} format...")
 
-        val executor = GitCommandExecutor(project.projectDir, logger)
+        val executor = GitCommandExecutor(projectDirectory.get().asFile, logger)
         val collector = GitDataCollector(executor)
         val statusData = collector.collectGitStatus(
             includeRemoteStatus = includeRemoteStatus.get(),

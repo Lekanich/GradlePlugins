@@ -28,6 +28,9 @@ class GitStatisticPlugin : Plugin<Project> {
             group = PublishingPlugin.PUBLISH_TASK_GROUP
             description = "Generate Git status report in JSON/HTML/Markdown format"
 
+            // Configure project directory
+            projectDirectory.convention(project.layout.projectDirectory)
+
             // Configure from extension
             format.convention(extension.reportFormat)
             outputFile.convention(
@@ -42,6 +45,9 @@ class GitStatisticPlugin : Plugin<Project> {
         project.tasks.register("gitDashboard", GitDashboardTask::class.java) {
             group = PublishingPlugin.PUBLISH_TASK_GROUP
             description = "Generate interactive Git dashboard with visualizations"
+
+            // Configure project directory
+            projectDirectory.convention(project.layout.projectDirectory)
 
             // Configure from extension
             outputDir.convention(project.layout.buildDirectory.dir("reports/git-dashboard"))
