@@ -8,22 +8,17 @@ import org.gradle.api.provider.Property
  * Example usage:
  * ```kotlin
  * gitTool {
- *     enabled.set(true)
  *     remoteName.set("origin")
  *     defaultTagMessage.set("Release {tag}")
  *     validateBeforeTag.set(true)
  *     requireCleanWorkspace.set(true)
+ *     writeToFile.set(true)
  * }
  * ```
  *
  * @since 1.1.0
  */
 abstract class GitToolExtension {
-    /**
-     * Enable or disable the Git Tool plugin functionality.
-     * Default: true
-     */
-    abstract val enabled: Property<Boolean>
 
     /**
      * The name of the remote repository to use for push operations.
@@ -58,7 +53,6 @@ abstract class GitToolExtension {
     abstract val writeToFile: Property<Boolean>
 
     init {
-        enabled.convention(true)
         remoteName.convention("origin")
         defaultTagMessage.convention("Release {tag}")
         validateBeforeTag.convention(true)

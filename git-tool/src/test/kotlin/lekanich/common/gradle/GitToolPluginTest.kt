@@ -3,8 +3,6 @@ package lekanich.common.gradle
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.io.TempDir
-import java.io.File
 
 /**
  * Tests for the GitToolPlugin.
@@ -49,11 +47,11 @@ class GitToolPluginTest: BaseGitTest() {
 
         val extension = project.extensions.getByType(GitToolExtension::class.java)
 
-        assertTrue(extension.enabled.get(), "enabled should default to true")
         assertEquals("origin", extension.remoteName.get(), "remoteName should default to 'origin'")
         assertEquals("Release {tag}", extension.defaultTagMessage.get())
         assertTrue(extension.validateBeforeTag.get())
         assertTrue(extension.requireCleanWorkspace.get())
+        assertTrue(extension.writeToFile.get())
     }
 
     @Test
@@ -65,17 +63,17 @@ class GitToolPluginTest: BaseGitTest() {
         project.pluginManager.apply("io.github.lekanich.git-tool")
 
         val extension = project.extensions.getByType(GitToolExtension::class.java)
-        extension.enabled.set(false)
         extension.remoteName.set("upstream")
         extension.defaultTagMessage.set("Version {tag}")
         extension.validateBeforeTag.set(false)
         extension.requireCleanWorkspace.set(false)
+        extension.writeToFile.set(false)
 
-        assertFalse(extension.enabled.get())
         assertEquals("upstream", extension.remoteName.get())
         assertEquals("Version {tag}", extension.defaultTagMessage.get())
         assertFalse(extension.validateBeforeTag.get())
         assertFalse(extension.requireCleanWorkspace.get())
+        assertFalse(extension.writeToFile.get())
     }
 
     @Test

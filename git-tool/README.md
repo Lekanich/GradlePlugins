@@ -46,7 +46,6 @@ Configure the plugin using the `gitTool` extension:
 
 ```kotlin
 gitTool {
-    enabled.set(true)                              // Enable/disable plugin (default: true)
     remoteName.set("origin")                       // Remote name for push operations (default: "origin")
     defaultTagMessage.set("Release {tag}")         // Default tag message template (default: "Release {tag}")
     validateBeforeTag.set(true)                    // Check tag doesn't exist before creating (default: true)

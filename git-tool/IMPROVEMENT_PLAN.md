@@ -32,18 +32,18 @@
 
 ```kotlin
 abstract class GitToolExtension {
-    abstract val enabled: Property<Boolean>
     abstract val remoteName: Property<String>
     abstract val defaultTagMessage: Property<String>
     abstract val validateBeforeTag: Property<Boolean>
     abstract val requireCleanWorkspace: Property<Boolean>
+    abstract val writeToFile: Property<Boolean>
     
     init {
-        enabled.convention(true)
         remoteName.convention("origin")
         defaultTagMessage.convention("Release {tag}")
         validateBeforeTag.convention(true)
         requireCleanWorkspace.convention(true)
+        writeToFile.convention(true)
     }
 }
 ```
@@ -53,6 +53,8 @@ abstract class GitToolExtension {
 - All task files - Use extension properties
 
 **Benefit**: Users can customize plugin behavior per project
+
+**Note**: The `enabled` property was considered but removed in v1.1.0 as it adds unnecessary complexity for a tool plugin. Users can control plugin usage by simply not applying it or not running tasks.
 
 ---
 
@@ -445,7 +447,7 @@ After improvements, the plugin should:
 - ✅ Support configuration cache (all tasks properly configured)
 - ✅ Have comprehensive documentation (README with examples)
 - ✅ Handle errors gracefully (proper exception handling)
-- ✅ Be configurable via DSL (GitToolExtension with 6 properties)
+- ✅ Be configurable via DSL (GitToolExtension with 5 properties)
 - ✅ Follow Gradle best practices (all tasks extend Exec, no project.exec usage)
 - ✅ Support common Git workflows (gitReleaseTag composite task)
 - ✅ **NEW**: Expose output properties for direct access
@@ -469,7 +471,7 @@ After improvements, the plugin should:
 #### What Was Delivered (All in v1.1.0)
 
 **Phase 1 - Foundation**:
-- ✅ Plugin extension with 6 configurable properties
+- ✅ Plugin extension with 5 configurable properties (removed 'enabled' as unnecessary)
 - ✅ 12 comprehensive test files (92% test coverage - all tasks covered)
 - ✅ Fixed all technical issues (logging, ByteArrayOutputStream, error handling)
 - ✅ GitInstalled task for validation
@@ -511,7 +513,7 @@ After improvements, the plugin should:
 
 **Core Files Modified**: 4
 - GitToolPlugin.kt (registers all tasks)
-- GitToolExtension.kt (6 properties)
+- GitToolExtension.kt (5 properties)
 - GitInstalled.kt (improved and documented)
 - README.md (comprehensive documentation)
 
@@ -520,7 +522,7 @@ After improvements, the plugin should:
 
 #### Key Features Implemented
 
-1. **Configuration Extension** - Full DSL support with 6 properties
+1. **Configuration Extension** - Full DSL support with 5 properties
 2. **12 Tasks Total** - Complete Git automation toolkit
 3. **Output Properties** - Direct property access without file I/O
 4. **File Writing Control** - Optional file output for performance
@@ -532,6 +534,7 @@ After improvements, the plugin should:
 #### Breaking Changes
 
 **v1.1.0**:
+- Removed `enabled` property from `GitToolExtension` (use plugin application control instead)
 - `GitDeleteTag` now only deletes local tags (use `GitDeleteRemoteTag` for remote deletion)
 - This follows best practices: one task = one Git command
 
