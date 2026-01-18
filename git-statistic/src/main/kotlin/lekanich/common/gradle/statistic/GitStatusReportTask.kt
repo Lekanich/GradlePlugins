@@ -1,15 +1,11 @@
 package lekanich.common.gradle.statistic
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 /**
  * Task that generates a comprehensive Git status report.
@@ -43,7 +39,12 @@ abstract class GitStatusReportTask : DefaultTask() {
     fun generateReport() {
         logger.lifecycle("Generating Git status report in ${format.get()} format...")
 
-        val statusData = collectGitStatus()
+        val executor = GitCommandExecutor(project.projectDir, logger)
+        val collector = GitDataCollector(executor)
+        val statusData = collector.collectGitStatus(
+            includeRemoteStatus = includeRemoteStatus.get(),
+            includeFileChanges = includeFileChanges.get()
+        )
         val output = outputFile.get().asFile
 
         output.parentFile.mkdirs()
@@ -57,104 +58,6 @@ abstract class GitStatusReportTask : DefaultTask() {
         logger.lifecycle("Git status report generated: ${output.absolutePath}")
     }
 
-    private fun collectGitStatus(): GitStatusData {
-        return GitStatusData(
-            reportGeneratedAt = Instant.now(),
-            repository = collectRepositoryInfo(),
-            commit = collectCommitInfo(),
-            workingDirectory = collectWorkingDirectoryInfo(),
-            tags = collectTagInfo(),
-            remote = if (includeRemoteStatus.get()) collectRemoteInfo() else null
-        )
-    }
-
-    private fun collectRepositoryInfo(): RepositoryInfo {
-        val currentBranch = executeGit("rev-parse", "--abbrev-ref", "HEAD")
-        val upstreamBranch = executeGitOrNull("rev-parse", "--abbrev-ref", "@{upstream}")
-
-        val branchStatus = if (upstreamBranch != null) {
-            val ahead = executeGit("rev-list", "--count", "$upstreamBranch..HEAD").toIntOrNull() ?: 0
-            val behind = executeGit("rev-list", "--count", "HEAD..$upstreamBranch").toIntOrNull() ?: 0
-            BranchStatus(ahead, behind)
-        } else null
-
-        return RepositoryInfo(currentBranch, upstreamBranch, branchStatus)
-    }
-
-    private fun collectCommitInfo(): CommitInfo {
-        val hash = executeGit("rev-parse", "HEAD")
-        val shortHash = executeGit("rev-parse", "--short", "HEAD")
-        val message = executeGit("log", "-1", "--pretty=%s")
-        val author = executeGit("log", "-1", "--pretty=%an")
-        val dateStr = executeGit("log", "-1", "--pretty=%cI")
-        val totalCount = executeGit("rev-list", "--count", "HEAD").toIntOrNull() ?: 0
-
-        return CommitInfo(
-            hash = hash,
-            shortHash = shortHash,
-            message = message,
-            author = author,
-            date = Instant.parse(dateStr),
-            totalCount = totalCount
-        )
-    }
-
-    private fun collectWorkingDirectoryInfo(): WorkingDirectoryInfo {
-        if (!includeFileChanges.get()) {
-            val isClean = executeGit("status", "--porcelain").isEmpty()
-            return WorkingDirectoryInfo(isClean, emptyList(), emptyList(), emptyList(), emptyList())
-        }
-
-        val statusOutput = executeGit("status", "--porcelain")
-        val modified = mutableListOf<String>()
-        val untracked = mutableListOf<String>()
-        val staged = mutableListOf<String>()
-        val conflicts = mutableListOf<String>()
-
-        statusOutput.lines().forEach { line ->
-            if (line.isBlank()) return@forEach
-            val status = line.substring(0, 2)
-            val file = line.substring(3)
-
-            when {
-                status.contains("U") || status == "DD" || status == "AA" -> conflicts.add(file)
-                status[0] != ' ' && status[0] != '?' -> staged.add(file)
-                status == "??" -> untracked.add(file)
-                status[1] == 'M' || status[1] == 'D' -> modified.add(file)
-            }
-        }
-
-        return WorkingDirectoryInfo(
-            isClean = statusOutput.isEmpty(),
-            modified = modified,
-            untracked = untracked,
-            staged = staged,
-            conflicts = conflicts
-        )
-    }
-
-    private fun collectTagInfo(): TagInfo {
-        val allTags = executeGit("tag", "--sort=-version:refname").lines().filter { it.isNotBlank() }
-        val latestTag = allTags.firstOrNull()
-        val commitsSinceLatest = if (latestTag != null) {
-            executeGit("rev-list", "--count", "$latestTag..HEAD").toIntOrNull() ?: 0
-        } else 0
-
-        return TagInfo(latestTag, commitsSinceLatest, allTags)
-    }
-
-    private fun collectRemoteInfo(): RemoteInfo? {
-        val remoteName = executeGitOrNull("remote") ?: return null
-        val remoteUrl = executeGitOrNull("remote", "get-url", remoteName) ?: return null
-        val reachable = try {
-            executeGit("ls-remote", "--exit-code", remoteName)
-            true
-        } catch (_: Exception) {
-            false
-        }
-
-        return RemoteInfo(remoteName, remoteUrl, reachable)
-    }
 
     private fun writeJsonReport(data: GitStatusData, output: java.io.File) {
         val json = buildString {
@@ -232,7 +135,7 @@ abstract class GitStatusReportTask : DefaultTask() {
             <body>
                 <div class="container">
                     <h1>Git Status Report</h1>
-                    <p><strong>Generated:</strong> ${formatDateTime(data.reportGeneratedAt)}</p>
+                    <p><strong>Generated:</strong> ${DateTimeUtils.formatDateTime(data.reportGeneratedAt)}</p>
                     
                     <h2>Repository</h2>
                     <table>
@@ -268,7 +171,7 @@ abstract class GitStatusReportTask : DefaultTask() {
                         </tr>
                         <tr>
                             <td>Date</td>
-                            <td>${formatDateTime(data.commit.date)}</td>
+                            <td>${DateTimeUtils.formatDateTime(data.commit.date)}</td>
                         </tr>
                         <tr>
                             <td>Total Commits</td>
@@ -356,7 +259,7 @@ abstract class GitStatusReportTask : DefaultTask() {
         val markdown = buildString {
             appendLine("# Git Status Report")
             appendLine()
-            appendLine("**Generated:** ${formatDateTime(data.reportGeneratedAt)}")
+            appendLine("**Generated:** ${DateTimeUtils.formatDateTime(data.reportGeneratedAt)}")
             appendLine()
             appendLine("## Repository")
             appendLine()
@@ -371,7 +274,7 @@ abstract class GitStatusReportTask : DefaultTask() {
             appendLine("- **Hash:** `${data.commit.shortHash}`")
             appendLine("- **Message:** ${data.commit.message}")
             appendLine("- **Author:** ${data.commit.author}")
-            appendLine("- **Date:** ${formatDateTime(data.commit.date)}")
+            appendLine("- **Date:** ${DateTimeUtils.formatDateTime(data.commit.date)}")
             appendLine("- **Total Commits:** ${data.commit.totalCount}")
             appendLine()
             appendLine("## Working Directory")
@@ -413,42 +316,7 @@ abstract class GitStatusReportTask : DefaultTask() {
         output.writeText(markdown)
     }
 
-    private fun executeGit(vararg args: String): String {
-        val processBuilder = ProcessBuilder("git", *args)
-            .directory(project.projectDir)
-            .redirectErrorStream(false)
-
-        val process = processBuilder.start()
-        val output = process.inputStream.bufferedReader().readText()
-        val errorOutput = process.errorStream.bufferedReader().readText()
-        val exitCode = process.waitFor()
-
-        if (exitCode != 0) {
-            logger.error("Git command failed: git ${args.joinToString(" ")}")
-            if (errorOutput.isNotEmpty()) {
-                logger.error("Error output: $errorOutput")
-            }
-            throw GradleException("Git command failed: git ${args.joinToString(" ")}")
-        }
-
-        return output.trim()
-    }
-
-    private fun executeGitOrNull(vararg args: String): String? {
-        return try {
-            executeGit(*args).takeIf { it.isNotBlank() }
-        } catch (_: Exception) {
-            null
-        }
-    }
-
     private fun List<String>.toJsonArray(): String {
         return "[" + joinToString(", ") { "\"$it\"" } + "]"
-    }
-
-    private fun formatDateTime(instant: Instant): String {
-        return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-            .withZone(ZoneId.systemDefault())
-            .format(instant)
     }
 }

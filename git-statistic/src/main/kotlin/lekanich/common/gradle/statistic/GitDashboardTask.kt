@@ -1,15 +1,11 @@
 package lekanich.common.gradle.statistic
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 /**
  * Task that generates an interactive HTML dashboard with Git statistics and visualizations.
@@ -45,10 +41,13 @@ abstract class GitDashboardTask : DefaultTask() {
         val outputDirectory = outputDir.get().asFile
         outputDirectory.mkdirs()
 
-        val statusData = collectGitStatus()
-        val commitHistory = if (includeCommitGraph.get()) collectCommitHistory() else emptyList()
-        val contributorStats = if (includeContributorStats.get()) collectContributorStats() else emptyMap()
-        val fileChanges = if (includeFileHeatmap.get()) collectFileChangeStats() else emptyMap()
+        val executor = GitCommandExecutor(project.projectDir, logger)
+        val collector = GitDataCollector(executor)
+
+        val statusData = collector.collectGitStatus()
+        val commitHistory = if (includeCommitGraph.get()) collector.collectCommitHistory(commitHistoryDepth.get()) else emptyList()
+        val contributorStats = if (includeContributorStats.get()) collector.collectContributorStats() else emptyMap()
+        val fileChanges = if (includeFileHeatmap.get()) collector.collectFileChangeStats() else emptyMap()
 
         val dashboardFile = outputDirectory.resolve("index.html")
         writeDashboard(dashboardFile, statusData, commitHistory, contributorStats, fileChanges)
@@ -56,137 +55,6 @@ abstract class GitDashboardTask : DefaultTask() {
         logger.lifecycle("Git dashboard generated: ${dashboardFile.absolutePath}")
     }
 
-    private fun collectGitStatus(): GitStatusData {
-        return GitStatusData(
-            reportGeneratedAt = Instant.now(),
-            repository = collectRepositoryInfo(),
-            commit = collectCommitInfo(),
-            workingDirectory = collectWorkingDirectoryInfo(),
-            tags = collectTagInfo(),
-            remote = collectRemoteInfo()
-        )
-    }
-
-    private fun collectRepositoryInfo(): RepositoryInfo {
-        val currentBranch = executeGit("rev-parse", "--abbrev-ref", "HEAD")
-        val upstreamBranch = executeGitOrNull("rev-parse", "--abbrev-ref", "@{upstream}")
-
-        val branchStatus = if (upstreamBranch != null) {
-            val ahead = executeGit("rev-list", "--count", "$upstreamBranch..HEAD").toIntOrNull() ?: 0
-            val behind = executeGit("rev-list", "--count", "HEAD..$upstreamBranch").toIntOrNull() ?: 0
-            BranchStatus(ahead, behind)
-        } else null
-
-        return RepositoryInfo(currentBranch, upstreamBranch, branchStatus)
-    }
-
-    private fun collectCommitInfo(): CommitInfo {
-        val hash = executeGit("rev-parse", "HEAD")
-        val shortHash = executeGit("rev-parse", "--short", "HEAD")
-        val message = executeGit("log", "-1", "--pretty=%s")
-        val author = executeGit("log", "-1", "--pretty=%an")
-        val dateStr = executeGit("log", "-1", "--pretty=%cI")
-        val totalCount = executeGit("rev-list", "--count", "HEAD").toIntOrNull() ?: 0
-
-        return CommitInfo(
-            hash = hash,
-            shortHash = shortHash,
-            message = message,
-            author = author,
-            date = Instant.parse(dateStr),
-            totalCount = totalCount
-        )
-    }
-
-    private fun collectWorkingDirectoryInfo(): WorkingDirectoryInfo {
-        val statusOutput = executeGit("status", "--porcelain")
-        val modified = mutableListOf<String>()
-        val untracked = mutableListOf<String>()
-        val staged = mutableListOf<String>()
-        val conflicts = mutableListOf<String>()
-
-        statusOutput.lines().forEach { line ->
-            if (line.isBlank()) return@forEach
-            val status = line.substring(0, 2)
-            val file = line.substring(3)
-
-            when {
-                status.contains("U") || status == "DD" || status == "AA" -> conflicts.add(file)
-                status[0] != ' ' && status[0] != '?' -> staged.add(file)
-                status == "??" -> untracked.add(file)
-                status[1] == 'M' || status[1] == 'D' -> modified.add(file)
-            }
-        }
-
-        return WorkingDirectoryInfo(
-            isClean = statusOutput.isEmpty(),
-            modified = modified,
-            untracked = untracked,
-            staged = staged,
-            conflicts = conflicts
-        )
-    }
-
-    private fun collectTagInfo(): TagInfo {
-        val allTags = executeGit("tag", "--sort=-version:refname").lines().filter { it.isNotBlank() }
-        val latestTag = allTags.firstOrNull()
-        val commitsSinceLatest = if (latestTag != null) {
-            executeGit("rev-list", "--count", "$latestTag..HEAD").toIntOrNull() ?: 0
-        } else 0
-
-        return TagInfo(latestTag, commitsSinceLatest, allTags)
-    }
-
-    private fun collectRemoteInfo(): RemoteInfo? {
-        val remoteName = executeGitOrNull("remote") ?: return null
-        val remoteUrl = executeGitOrNull("remote", "get-url", remoteName) ?: return null
-        val reachable = try {
-            executeGit("ls-remote", "--exit-code", remoteName)
-            true
-        } catch (_: Exception) {
-            false
-        }
-
-        return RemoteInfo(remoteName, remoteUrl, reachable)
-    }
-
-    private fun collectCommitHistory(): List<CommitHistoryEntry> {
-        val depth = commitHistoryDepth.get()
-        val output = executeGit("log", "-$depth", "--pretty=format:%H|%h|%an|%ae|%cI|%s")
-        return output.lines().filter { it.isNotBlank() }.map { line ->
-            val parts = line.split("|")
-            CommitHistoryEntry(
-                hash = parts[0],
-                shortHash = parts[1],
-                author = parts[2],
-                authorEmail = parts[3],
-                date = Instant.parse(parts[4]),
-                message = parts[5]
-            )
-        }
-    }
-
-    private fun collectContributorStats(): Map<String, Int> {
-        val output = executeGit("shortlog", "-sn", "--all", "--no-merges")
-        return output.lines()
-            .filter { it.isNotBlank() }
-            .associate { line ->
-                val parts = line.trim().split("\t", limit = 2)
-                parts[1] to parts[0].toInt()
-            }
-    }
-
-    private fun collectFileChangeStats(): Map<String, Int> {
-        val output = executeGit("log", "--all", "--pretty=format:", "--name-only")
-        return output.lines()
-            .filter { it.isNotBlank() }
-            .groupingBy { it }
-            .eachCount()
-            .toList()
-            .sortedByDescending { it.second }
-            .take(20)
-            .toMap()
-    }
 
     private fun writeDashboard(
         file: java.io.File,
@@ -241,7 +109,7 @@ abstract class GitDashboardTask : DefaultTask() {
                     <h1>📊 Git Dashboard</h1>
                     <div class="meta">
                         <strong>${status.repository.currentBranch}</strong> • 
-                        Generated: ${formatDateTime(status.reportGeneratedAt)}
+                        Generated: ${DateTimeUtils.formatDateTime(status.reportGeneratedAt)}
                     </div>
                 </div>
                 
@@ -285,7 +153,7 @@ abstract class GitDashboardTask : DefaultTask() {
                             </div>
                             <div class="stat">
                                 <span class="stat-label">Date</span>
-                                <span class="stat-value">${formatDateTime(status.commit.date)}</span>
+                                <span class="stat-value">${DateTimeUtils.formatDateTime(status.commit.date)}</span>
                             </div>
                             <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
                                 <div style="color: #333; font-size: 14px;">${status.commit.message}</div>
@@ -364,7 +232,7 @@ abstract class GitDashboardTask : DefaultTask() {
                             <div class="commit-item">
                                 <div class="commit-hash">${commit.shortHash}</div>
                                 <div class="commit-message">${commit.message}</div>
-                                <div class="commit-meta">${commit.author} • ${formatDateTime(commit.date)}</div>
+                                <div class="commit-meta">${commit.author} • ${DateTimeUtils.formatDateTime(commit.date)}</div>
                             </div>
                             """ }}
                         </div>
@@ -448,55 +316,12 @@ abstract class GitDashboardTask : DefaultTask() {
                 </div>
                 
                 <div class="footer">
-                    Generated by Git Statistic Plugin • ${formatDateTime(status.reportGeneratedAt)}
+                    Generated by Git Statistic Plugin • ${DateTimeUtils.formatDateTime(status.reportGeneratedAt)}
                 </div>
             </body>
             </html>
         """.trimIndent()
         file.writeText(html)
     }
-
-    private fun executeGit(vararg args: String): String {
-        val processBuilder = ProcessBuilder("git", *args)
-            .directory(project.projectDir)
-            .redirectErrorStream(false)
-
-        val process = processBuilder.start()
-        val output = process.inputStream.bufferedReader().readText()
-        val errorOutput = process.errorStream.bufferedReader().readText()
-        val exitCode = process.waitFor()
-
-        if (exitCode != 0) {
-            logger.error("Git command failed: git ${args.joinToString(" ")}")
-            if (errorOutput.isNotEmpty()) {
-                logger.error("Error output: $errorOutput")
-            }
-            throw GradleException("Git command failed: git ${args.joinToString(" ")}")
-        }
-
-        return output.trim()
-    }
-
-    private fun executeGitOrNull(vararg args: String): String? {
-        return try {
-            executeGit(*args).takeIf { it.isNotBlank() }
-        } catch (_: Exception) {
-            null
-        }
-    }
-
-    private fun formatDateTime(instant: Instant): String {
-        return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-            .withZone(ZoneId.systemDefault())
-            .format(instant)
-    }
 }
 
-data class CommitHistoryEntry(
-    val hash: String,
-    val shortHash: String,
-    val author: String,
-    val authorEmail: String,
-    val date: Instant,
-    val message: String
-)
