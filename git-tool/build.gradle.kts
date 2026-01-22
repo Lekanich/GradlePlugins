@@ -21,9 +21,9 @@ gradlePlugin {
     plugins {
         register("git-tool") {
             id = "io.github.lekanich.git-tool"
-            displayName = "Lekanich's Gradle plugin for Git operations"
-            description = "A Simple Gradle plugin for Git operations"
-            tags = listOf("lekanich")
+            displayName = "Git Tool - Git Operations Automation"
+            description = "Automate Git operations in Gradle builds: check repository status, create/manage/push tags, get Git info (branch, commit hash, tags), and orchestrate complete release workflows with built-in validation."
+            tags = listOf("git", "scm", "vcs", "version-control", "tagging", "release", "automation", "ci-cd")
             implementationClass = "lekanich.common.gradle.GitToolPlugin"
         }
     }
@@ -31,7 +31,14 @@ gradlePlugin {
 
 publishing {
     repositories {
-        mavenLocal()
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/lekanich/GradlePlugins")
+            credentials {
+                username = System.getenv("GH_ACTOR")
+                password = System.getenv("GH_TOKEN")
+            }
+        }
     }
 }
 
