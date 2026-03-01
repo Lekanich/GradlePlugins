@@ -1,10 +1,10 @@
 [versions]
 # libraries
 lombok = "1.18.42"
-junit = "6.0.1"
+junit = "6.0.2"
 
 # plugins
-kotlin = "2.2.21"
+kotlin = "2.3.0"
 plugin-publish = "2.0.0"
 gradle-testkit-jacoco = "1.0.5"
 
