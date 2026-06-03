@@ -8,5 +8,5 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.gmazzo.gradle.testkit.jacoco:io.github.gmazzo.gradle.testkit.jacoco.gradle.plugin:1.0.5")
+    implementation("io.github.gmazzo.gradle.testkit.jacoco:io.github.gmazzo.gradle.testkit.jacoco.gradle.plugin:1.1.0")
 }
